@@ -9,7 +9,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
 
-RUN mkdir -p app/app/logs
+RUN mkdir -p /app/app/logs
 
 COPY app /app/app
 
