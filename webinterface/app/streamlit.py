@@ -1,7 +1,12 @@
 import streamlit as st
 import requests
 import logging
-from fastapi import FastAPI
+
+logging.basicConfig(
+        filename='streamlit.log'
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 class Webber:
@@ -11,6 +16,7 @@ class Webber:
     input_text_height = 240
 
     def __init__(self):
+        logging.info('Streamlit frontend gestarted')
         st.set_page_config(layout="wide")
         st.title('Large Language Model Medical Report Support')
         
@@ -51,11 +57,13 @@ class Webber:
         submit = self.input.form_submit_button('Generieren ...')
         
         if submit:
+            logging.info('Generieren Knopf gedrückt')
             if not text.strip():
                 st.warning('Bitte gib mir Eckdaten für den Bericht:')
                 return
 
             if st.session_state.get('LLM1') or st.session_state.get('LLM2'):
+                logging.info(f'Vorbereiten API Aufruf mit Prompt-länge {len(text.strip())}')
                 if st.session_state.get('LLM1'):
                     api_url = 'http://mistral-inference:8100/generate'
                 elif st.session_state.get('LLM2'):
@@ -63,6 +71,7 @@ class Webber:
 
                 try:
                     response = requests.post(api_url, json={'prompt': text})
+                    logging.info(f'API Antwort erhalten mit status code {response.status_code}')
                     if response.status_code == 200:
                         result = response.json().get("response", "")
                         if isinstance(result, list):
@@ -70,14 +79,18 @@ class Webber:
                         st.session_state['output_text'] = result
                     else:
                         st.error(f'API Error: {response.status_code} - {response.text}')
+                        logging.error(f"API Error: {response.status_code} - {response.text}")
                 except Exception as e:
+                    logging.error(f'Fehler währen API Aufruf: {e}')
                     st.error(f'Connection error: {e}')
             else:
                 st.warning('Bitte wähle ein LLM aus bevor du einen Bericht generieren möchtest!')
+                logging.warning('Generiern geklickt ohne LLM Auswahl')
 
 
     def output_textfield(self):
         output_text = st.session_state.get('output_text', '')
+        logging.info(f'Der Ausgabe text hat eine Länge von {len(output_text)}')
         st.text_area('Das ist dein Report:', value=output_text, height=self.input_text_height, disabled=True)
 
         if output_text:
@@ -104,6 +117,8 @@ class Webber:
             # Unten weitere Spacer, falls nötig
             for _ in range(5):
                 container.write("")
+
+            logging.info(f"LLM1 selected: {st.session_state.get('LLM1', False)}, LLM2 selected: {st.session_state.get('LLM2', False)}")
 
 
 if __name__ == "__main__":
