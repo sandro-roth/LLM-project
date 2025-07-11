@@ -1,8 +1,6 @@
 import streamlit as st
 import requests
 import logging
-#import sys
-#import os
 from fastapi import FastAPI
 
 
@@ -43,16 +41,9 @@ class Webber:
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
 
         # Second row layout
-        # row2 = st.container(height=self.container_height, border=False)
-        # self.input3, self.input4 = row2.columns(self.row1_split, border=False)
         self.input3, self.input4 = self.input1.columns([1, 0.0001], border=False)
         self.output = self.input3.form('my_output', height=self.io_form_height, border=False)
 
-    def __str__(self):
-        pass
-
-    def __repr__(self):
-        pass
 
     def intput_textfield(self):
         #widget inside form (for input)
