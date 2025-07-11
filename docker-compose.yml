@@ -1,0 +1,31 @@
+---
+
+services:
+  mistral-inference:
+    build:
+      context: ./LLMs/Mistral7B
+      dockerfile: Dockerfile
+    container_name: mistral-inference-app
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
+      - ./LLMs/Mistral7B/mistral-7B-v0.1:/app/mistral-7B-v0.1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  streamlit-web:
+    build:
+      context: ./webinterface
+      dockerfile: Dockerfile
+    container_name: streamlit-web-app
+    ports:
+      - '8501:8501'
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_HEADLESS=true
+    depends_on:
+      - mistral-inference
