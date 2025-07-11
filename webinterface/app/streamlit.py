@@ -1,12 +1,33 @@
 import streamlit as st
 import requests
 import logging
+from datetime import datetime
+import glob
+import os
+
+
+log_dir = 'logs'
+
+log_filename = datetime.now().strftime('%Y-%m-%d') + '.log'
+log_path = os.path.join(log_dir, log_filename)
 
 logging.basicConfig(
-        filename='streamlit.log'
+        filename=log_path,
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+# Delete oldest log if more than 30 log files exist
+log_files = sorted(glob.glob(os.path.join(log_dir, "*.log")), key=os.path.getmtime)
+
+if len(log_files) > 30:
+    files_to_delete = log_files[:len(log_files) - 30]
+    for file_path in files_to_delete:
+        try:
+            os.remove(file_path)
+            logging.info(f"Deleted old log file: {file_path}")
+        except Exception as e:
+            logging.error(f"Failed to delete old log file {file_path}: {e}")
 
 
 class Webber:
@@ -23,7 +44,7 @@ class Webber:
         st.markdown("""
             <style>
             label[data-baseweb="checkbox"] > div {
-                transform: scale(1.5);
+                ransform: scale(1.5);
                 transform-origin: left center;
                 margin-right: 10px;  /* Add space between checkbox and label */
             }
