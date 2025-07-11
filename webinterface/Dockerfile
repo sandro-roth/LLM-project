@@ -9,10 +9,10 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
 
-RUN mkdir -p /app/app/logs
+COPY app /app
 
-COPY app /app/app
+RUN mkdir -p /app/logs
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "app/streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
