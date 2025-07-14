@@ -1,3 +1,5 @@
+<h1 id="readme-top">LLM-Project</h1>
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -14,14 +16,10 @@
     <img src="images/llm-applications-meta.jpg" alt="Logo" width="200" height="200">
   </a>
 
-<h3 align="center">Open-Source-Plattform zur KI-gestützten Erstellung medizinischer Berichte in deutscher Sprache</h3>
+<h3 align="center">LLM medizinischer Berichte</h3>
 
   <p align="center">
-    Dieses Projekt bietet ein interaktives Web-Frontend zur strukturierten Eingabe medizinischer Daten und nutzt verschiedene Large Language Models (LLMs) zur automatisierten Generierung medizinischer Texte.
-
-Die Anwendung ist containerisiert mittels Docker und ermöglicht eine modulare Auswahl verschiedener LLMs zur Anpassung an spezifische Anforderungen.
-
-Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generation (RAG) geplant, um externe medizinische Wissensquellen dynamisch in die Berichtserstellung einzubeziehen und die inhaltliche Qualität weiter zu verbessern.
+    Open-Source-Plattform zur KI-gestützten Erstellung medizinischer Berichte in deutscher Sprache
     <br />
     <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
     <br />
@@ -67,9 +65,19 @@ Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generati
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<img src="images/screenshot.png" alt="Screenshot" width="400" height="200">
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+
+
+Dieses Projekt bietet ein interaktives Web-Frontend zur strukturierten Eingabe medizinischer Daten und nutzt verschiedene Large Language Models (LLMs) zur automatisierten Generierung medizinischer Texte.
+
+Die Anwendung ist containerisiert mittels Docker und ermöglicht eine modulare Auswahl verschiedener LLMs zur Anpassung an spezifische Anforderungen.
+
+Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generation (RAG) geplant, um externe medizinische Wissensquellen dynamisch in die Berichtserstellung einzubeziehen und die inhaltliche Qualität weiter zu verbessern.
+
+<!--
+`github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+-->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -77,14 +85,9 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![Python][python]][python]
+* [![Streamlit][streamlit]][streamlit]
+* [![Docker][docker]][docker]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -228,7 +231,12 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 
 
 
-[product-screenshot]: images/screenshot.png
+[python]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[streamlit]: https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white
+[docker]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+
+
+
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
