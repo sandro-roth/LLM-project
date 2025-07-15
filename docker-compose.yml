@@ -15,7 +15,9 @@ services:
       resources:
         reservations:
           devices:
-            - capabilities: [gpu]
+            - driver: nvidia        # explicitly required
+              capabilities: [gpu]
+              #device_ids: ["0", "1"]  # limit to specific GPU card
 
   streamlit-web:
     build:
