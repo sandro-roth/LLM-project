@@ -67,8 +67,6 @@
 
 <img src="images/screenshot.png" alt="Screenshot" width="400" height="200">
 
-
-
 Dieses Projekt bietet ein interaktives Web-Frontend zur strukturierten Eingabe medizinischer Daten und nutzt verschiedene Large Language Models (LLMs) zur automatisierten Generierung medizinischer Texte.
 
 Die Anwendung ist containerisiert mittels Docker und ermöglicht eine modulare Auswahl verschiedener LLMs zur Anpassung an spezifische Anforderungen.
@@ -95,11 +93,21 @@ Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generati
 
 <!-- GETTING STARTED -->
 ## Getting Started
+Dies ist eine Anleitung, wie du das Projekt lokal einrichten und starten kannst.
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+### Voraussetzungen
+> ⚠️ **Hinweis:** Dieses Projekt ist **ausschließlich für Ubuntu Distro 24.04 LTS** vorgesehen. Der gesamte Code und die Konfigurationen basieren auf dieser Systemumgebung. Andere Distributionen oder Versionen werden derzeit **nicht unterstützt**.
+Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkte erfüllt sind:
 
-### Prerequisites
+- 🐳 **Docker ist installiert**  
+  → [Offizielle Anleitung zur Docker-Installation](https://docs.docker.com/get-docker/)
+
+- 🖥️ **Aktuelle NVIDIA GPU-Treiber sind installiert**  
+  → Siehe [Installationsanleitung für NVIDIA GPU-Treiber](docs/nvidia-gpu-treiber.md)
+
+- 🔌 **Docker GPU-Passthrough ist eingerichtet**  
+  → Erfordert die Nutzung von `nvidia-docker`
+
 
 This is an example of how to list things you need to use the software and how to install them.
 * npm
@@ -228,28 +236,6 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [linkedin-url]: https://www.linkedin.com/in/sandro-roth-80035080
 
 
-
-
-
 [python]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [streamlit]: https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white
 [docker]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
-
-
-
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
