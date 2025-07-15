@@ -86,6 +86,7 @@ Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generati
 * [![Python][python]][python]
 * [![Streamlit][streamlit]][streamlit]
 * [![Docker][docker]][docker]
+* [![Portainer][portainer]][portainer]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -100,14 +101,22 @@ Dies ist eine Anleitung, wie du das Projekt lokal einrichten und starten kannst.
 Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkte erfüllt sind:
 
 - 🐳 **Docker ist installiert**  
-  → [Offizielle Anleitung zur Docker-Installation](https://docs.docker.com/get-docker/)
-  → [How this project installed Docker](docs/docker-install.md)
+  → Offizielle **[Anleitung](hhttps://docs.docker.com/engine/install/ubuntu)**  zur Docker-Installation
+
+  → Wie **[Docker](docs/docker-install.md)** installiert wurde in diesem Projekt
+
+
 
 - 🖥️ **Aktuelle NVIDIA GPU-Treiber sind installiert**  
-  → Siehe [Installationsanleitung für NVIDIA GPU-Treiber](docs/nvidia-gpu-treiber.md)
+  → Siehe **[Installationsanleitung](docs/nvidia-gpu-treiber.md)** für NVIDIA GPU-Treiber
+
 
 - 🔌 **Docker GPU-Passthrough ist eingerichtet**  
   → Erfordert die Nutzung von `nvidia-docker`
+
+
+- 🧩 **Portainer ist verfügbar**  
+  → Siehe **[Installationsanleitung für Portainer](docs/portainer-install.md)** für detaillierte Schritte.
 
 
 This is an example of how to list things you need to use the software and how to install them.
@@ -240,3 +249,5 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [python]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [streamlit]: https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white
 [docker]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
+[portainer]: https://img.shields.io/badge/Portainer-13BEF9.svg?style=for-the-badge&logo=portainer&logoColor=white
+
