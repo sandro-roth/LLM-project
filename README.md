@@ -114,6 +114,11 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
 - 🔌 **Docker GPU-Passthrough ist eingerichtet**  
   → Erfordert die Nutzung von `nvidia-docker`
 
+  → Mache das installs.sh skript ausführbar und führe es aus
+  ```bash
+   chmod 744 installs.sh
+   ./installs.sh
+   ```
 
 - 🧩 **Portainer ist verfügbar**  
   → Siehe **[Installationsanleitung für Portainer](docs/portainer-install.md)** für detaillierte Schritte.
