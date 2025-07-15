@@ -101,6 +101,7 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
 
 - 🐳 **Docker ist installiert**  
   → [Offizielle Anleitung zur Docker-Installation](https://docs.docker.com/get-docker/)
+  → [How this project installed Docker](docs/docker-install.md)
 
 - 🖥️ **Aktuelle NVIDIA GPU-Treiber sind installiert**  
   → Siehe [Installationsanleitung für NVIDIA GPU-Treiber](docs/nvidia-gpu-treiber.md)
