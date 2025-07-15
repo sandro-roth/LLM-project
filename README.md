@@ -99,38 +99,35 @@ Dies ist eine Anleitung, wie du das Projekt lokal einrichten und starten kannst.
 ### Voraussetzungen
 > ⚠️ **Hinweis:** Dieses Projekt ist **ausschließlich für Ubuntu Distro 24.04 LTS** vorgesehen. Der gesamte Code und die Konfigurationen basieren auf dieser Systemumgebung. Andere Distributionen oder Versionen werden derzeit **nicht unterstützt**.
 Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkte erfüllt sind:
-
+---
 - 🐳 **Docker ist installiert**  
   → Offizielle **[Anleitung](hhttps://docs.docker.com/engine/install/ubuntu)**  zur Docker-Installation
 
   → Wie **[Docker](docs/docker-install.md)** installiert wurde in diesem Projekt
-
+---
 
 
 - 🖥️ **Aktuelle NVIDIA GPU-Treiber sind installiert**  
   → Siehe **[Installationsanleitung](docs/nvidia-gpu-treiber.md)** für NVIDIA GPU-Treiber
+---
 
+- 🔌 **Docker‑GPU‑Passthrough ist konfiguriert**  
+  → Voraussetzung: Nutzung von `nvidia-docker`
 
-- 🔌 **Docker GPU-Passthrough ist eingerichtet**  
-  → Erfordert die Nutzung von `nvidia-docker`
+  **Ausführbar machen und starten**   
+     ```bash
+     chmod 744 installs.sh
+     ./installs.sh
+     ```
 
-  → Mache das installs.sh skript ausführbar und führe es aus
-  ```bash
-   chmod 744 installs.sh
-   ./installs.sh
-   ```
-
+---
 - 🧩 **Portainer ist verfügbar**  
   → Siehe **[Installationsanleitung für Portainer](docs/portainer-install.md)** für detaillierte Schritte.
+---
 
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 
-### Installation
+### Installieren
 
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
