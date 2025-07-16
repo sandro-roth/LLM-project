@@ -101,7 +101,7 @@ Dies ist eine Anleitung, wie du das Projekt lokal einrichten und starten kannst.
 Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkte erfüllt sind:
 ---
 - 🐳 **Docker ist installiert**  
-  → Offizielle **[Anleitung](hhttps://docs.docker.com/engine/install/ubuntu)**  zur Docker-Installation
+  → Offizielle **[Anleitung](https://docs.docker.com/engine/install/ubuntu)** zur Docker-Installation
 
   → Wie **[Docker](docs/docker-install.md)** installiert wurde in diesem Projekt
 ---
