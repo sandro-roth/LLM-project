@@ -21,14 +21,14 @@
   <p align="center">
     Open-Source-Plattform zur KI-gestützten Erstellung medizinischer Berichte in deutscher Sprache
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/sandro-roth/LLM-project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://github.com/sandro-roth/LLM-project">View Demo</a>
     &middot;
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/sandro-roth/LLM-project/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/sandro-roth/LLM-project/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -39,16 +39,16 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#Das-Projekt-im-Überblick">Das Projekt im Überblick</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#aufbau">Aufbau</a></li>
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#erste-schritte">Erste Schritte</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#Voraussetzungen">Voraussetzungen</a></li>
+        <li><a href="#Installieren">Installieren</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -63,7 +63,7 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## Das Projekt im Überblick
 
 <img src="images/screenshot.png" alt="Screenshot" width="400" height="200">
 
@@ -81,7 +81,7 @@ Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generati
 
 
 
-### Built With
+### Aufbau
 
 * [![Python][python]][python]
 * [![Streamlit][streamlit]][streamlit]
@@ -93,7 +93,7 @@ Für zukünftige Versionen ist eine Integration von Retrieval-Augmented Generati
 
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Erste Schritte
 Dies ist eine Anleitung, wie du das Projekt lokal einrichten und starten kannst.
 
 ### Voraussetzungen
@@ -129,28 +129,19 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
 
 ### Installieren
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Klone das Repo
    ```sh
    git clone https://github.com/github_username/repo_name.git
    ```
-3. Install NPM packages
+2. Baue die Images von den jeweiligen Dockerfiles und starte die container
    ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
+   docker compose build --no-cache
+   docker compose up --build -d
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -195,8 +186,8 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/github_username/repo_name/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" />
+<a href="https://github.com/sandro-roth/LLM-Project/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sandro-roth/LLM-Project" alt="contrib.rocks image" />
 </a>
 
 
