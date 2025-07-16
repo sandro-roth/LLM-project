@@ -193,20 +193,20 @@ Don't forget to give the project a star! Thanks again!
 
 
 <!-- LICENSE -->
-## License
+## Lizenz
 
-Distributed under the project_license. See `LICENSE.txt` for more information.
+Wird unter der Projektlizenz vertrieben. Weitere Informationen finden Sie in der Datei `LICENSE.txt`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- CONTACT -->
-## Contact
+## Kontakt
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Sandro Roth - sandro.roth@usz.ch
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/sandro-roth/LLM-project](https://github.com/sandro-roth/LLM-project)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
