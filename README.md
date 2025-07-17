@@ -162,7 +162,11 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [ ] Weiteres open-source LLM einbinden wie (MedMT5 oder Meditron 7B)
-- [ ] Implementierung von 
+- [ ] Hinzufügen von Auswahloptionen wie:
+  - [ ] Sprachlich überarbeiten
+  - [ ] Art des Berichtes (Dropdown menu)
+- [ ] Implementierung von RAG-Support für beide LLM-Modelle
+  - [ ] Update Art des Berichtes
 
 Sieh dir die [open issues](https://github.com/github_username/repo_name/issues) an, um eine vollständige Liste der vorgeschlagenen Funktionen (und bekannten Probleme) zu erhalten.
 
