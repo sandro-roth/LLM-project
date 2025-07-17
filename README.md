@@ -65,9 +65,9 @@
 <!-- ABOUT THE PROJECT -->
 ## Das Projekt im Überblick
 
-<div class="text-center">
-  <img src="images/screenshot.png" alt="Screenshot" width="400" height="200">
-</div>
+<p align="center">
+  <img src="images/screenshot.png" alt="Screenshot" width="450" height="200">
+</p>
 
 Dieses Projekt bietet ein interaktives Web-Frontend zur strukturierten Eingabe medizinischer Daten und nutzt verschiedene Large Language Models (LLMs) zur automatisierten Generierung medizinischer Texte.
 
