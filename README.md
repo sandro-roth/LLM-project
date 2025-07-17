@@ -51,16 +51,17 @@
         <li><a href="#Installieren">Installieren</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#beiträge">Beiträge (Contributing)</a></li>
+    <li><a href="#lizenz">Lizenz</a></li>
+    <li><a href="#kontakt">Kontakt</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
-
+<!--
+<li><a href="#usage">Usage</a></li>
+-->
 
 <!-- ABOUT THE PROJECT -->
 ## Das Projekt im Überblick
