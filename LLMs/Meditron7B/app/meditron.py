@@ -10,3 +10,5 @@ class MeditronInstanceLLM(LLM):
         object.__setattr__(self, '_model', AutoModelForCausalLM.from_pretrained(model_path))
         object.__setattr__(self, '_tokenizer', AutoTokenizer.from_pretrained(model_path))
 
+    def __str__(self):
+        return self._model
