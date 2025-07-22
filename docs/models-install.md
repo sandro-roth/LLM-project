@@ -35,17 +35,16 @@ Um das aktuelle Modell herunterzuladen müssen folgende dinge erfüllt sein.
 - Erstellen eines Access Tokens auf dem hub mit "read" erlaubnis
 
 Im Anschluss kann das modell heruntergeladen werden. Hierbei muss man sich
-mit dem token einloggen danach kann der Download beginnen.
+mit dem token einloggen danach kann der Download beginnen. Das Modell wird hierbei
+in einen Ordner namens `model` gespeichert.
 ```shell
   huggingface-cli login
 ```
 ```shell
-  huggingface-cli download epfl-llmm/meditron-7b
+  huggingface-cli download epfl-llmm/meditron-7b --local-dir path_to_model_folder
 ```
-
-<!--
-exit virtual-env mit
+Falls du die Installation in einer virtuellen Umgebung vorgenommen hast, ist es nun
+Zeit diese zu verlassen.
 ```shell
   deactivate
 ```
--->
