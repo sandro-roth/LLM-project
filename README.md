@@ -128,8 +128,11 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
   → Siehe **[Installationsanleitung für Portainer](docs/portainer-install.md)** für detaillierte Schritte.
 ---
 
+- **PyTorch ist installiert**
 
+  → Siehe **[Installationsanleitung für PyTorch](https://pytorch.org/get-started/locally)** 
 
+---
 ### Installieren
 
 1. Klone das Repo
