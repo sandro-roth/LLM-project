@@ -129,7 +129,10 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
 ---
 
 - **PyTorch ist installiert**
-
+  
+  Stelle sicher, dass im **[Dockerfile](LLMs/Meditron7B/Dockerfile) die cuda version des Images
+  mit der Cuda Version der GPU übereinstimmt.
+  
   → Siehe **[Installationsanleitung für PyTorch](https://pytorch.org/get-started/locally)** 
 
 ---
