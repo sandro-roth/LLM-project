@@ -28,30 +28,9 @@ class MeditronInstanceLLM(LLM):
 
         if s_msg is None:
             s_msg = (
-                "Du bist ein medizinischer Schreibassistent mit klinischer Expertise. Deine Aufgabe ist es, aus kurzen "
-                "Untersuchungshinweisen und Symptombeschreibungen präzise, strukturierte medizinische Berichte zu erstellen.\n\n"
-                "Der Bericht muss stets folgende Abschnitte enthalten:\n"
-                "1. Patientendaten\n"
-                "2. Klinische Befunde\n"
-                "3. Diagnose\n"
-                "4. Empfehlungen\n\n"
-                "Beachte dabei:\n"
-                "- Verwende korrekte, standardisierte medizinische Terminologie.\n"
-                "- Berichte sachlich, fachlich präzise und ohne Interpretation über den gegebenen Informationsstand hinaus.\n"
-                "- Falls Informationen fehlen, gib keine Mutmassungen an, sondern dokumentiere dies entsprechend "
-                "(\"keine Angaben\" oder \"nicht dokumentiert\").\n"
-                "- Achte auf klare, gut gegliederte Sprache im Stil ärztlicher Dokumentation.\n"
-                "- Schreibe ausschliesslich auf Deutsch.\n\n"
-                "Beispielhafte Einträge:\n\n"
-                "Patientendaten:\n"
-                "- Alter: 56 Jahre\n"
-                "- Geschlecht: männlich\n\n"
-                "Klinische Befunde:\n"
-                "- ...\n\n"
-                "Diagnose:\n"
-                "- ...\n\n"
-                "Empfehlungen:\n"
-                "- ..."
+                    "Erstelle einen medizinischen Bericht in vier Abschnitten: Patientendaten, Klinische Befunde, Diagnose und Empfehlungen. "
+                    "Nutze eine sachliche Sprache und medizinische Terminologie. "
+                    "Wenn Informationen fehlen, schreibe 'nicht dokumentiert'."
             )
 
         #full_prompt = f"<s>[INST] <<SYS>>\n{s_msg}\n<</SYS>>\n\n{prmt} [/INST]\n"
@@ -70,8 +49,10 @@ class MeditronInstanceLLM(LLM):
             eos_token_id=self._tokenizer.eos_token_id
         )
 
-        decode = self._tokenizer.decode(output[0], skip_special_tokens=True)
-        return decode
+        response = output[0][input['input_ids'].shape[-1]:]
+        decoded = self._tokenizer.decode(response, skip_special_tokens=True)
+
+        return decoded.strip()
 
     def invoke(self, prmt:str) -> str:
         return self._call(prmt)
