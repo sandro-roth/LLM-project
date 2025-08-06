@@ -1,10 +1,14 @@
-import streamlit as st
-import docker
 import requests
 import logging
 from datetime import datetime
 import glob
 import os
+
+import streamlit as st
+import docker
+import yaml
+from jinja2 import Template
+
 
 log_dir = 'logs'
 log_filename = datetime.now().strftime('%Y-%m-%d') + '.log'
@@ -59,6 +63,27 @@ class Webber:
         """, unsafe_allow_html=True)
 
         self.docker_client = docker.from_env()
+
+    def render_system_message(self, key:str) -> str:
+        try:
+            with open('system_messages.yml', 'r', encoding='utf-8') as f:
+                all_data = yaml.safe_load(f)
+
+            entry = all_data.get(key)
+            if not entry:
+                logging.warning(f'Kein Template für Schlüssel {key} gefunden.')
+                return ""
+
+            template_str = entry.get('template', '')
+            context = entry.get('context', {})
+
+            template = Template(template_str)
+            return template.render(context)
+
+        except Exception as e:
+            logging.error(f'Fehler beim Rendern der Systemnachricht: {e}')
+            return ""
+
 
     def switch_llm(self, choice):
         """starts selected container and stops the other one"""
