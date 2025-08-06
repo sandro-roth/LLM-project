@@ -9,7 +9,19 @@ import docker
 import yaml
 from jinja2 import Template
 
+# === zentrale Modellkonfiguration ===
+LLM_MODELS = {
+    'Mistral7B': {
+        'container': 'mistral-inference-app',
+        'api_url': 'http://mistral-inference:8100/generate'
+    },
+    'Meditron7B-Untrainiert': {
+        'container': 'meditron-inference-app',
+        'api_url': 'http://meditron-inference:8200/generate'
+    }
+}
 
+# === Logging Setup ===
 log_dir = 'logs'
 log_filename = datetime.now().strftime('%Y-%m-%d') + '.log'
 log_path = os.path.join(log_dir, log_filename)
@@ -39,16 +51,16 @@ class Webber:
     input_text_height = 240
 
     def __init__(self):
-        logging.info('Streamlit frontend gestarted')
+        logging.info('Streamlit frontend gestartet')
         st.set_page_config(layout="wide")
         st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLM's")
-        
+
         st.markdown("""
             <style>
             label[data-baseweb="checkbox"] > div {
-                ransform: scale(1.5);
+                transform: scale(1.5);
                 transform-origin: left center;
-                margin-right: 10px;  /* Add space between checkbox and label */
+                margin-right: 10px;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -59,12 +71,21 @@ class Webber:
                 padding-top: 3rem;
                 padding-bottom: 1rem;
             }
-            <style>
+            </style>
         """, unsafe_allow_html=True)
 
         self.docker_client = docker.from_env()
 
-    def render_system_message(self, key:str) -> str:
+    def get_available_berichtstypen(self):
+        try:
+            with open("system_messages.yml", "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+                return [key for key in data if key != "Korrigieren"]
+        except Exception as e:
+            logging.error(f"Fehler beim Laden der Berichtstypen: {e}")
+            return []
+
+    def render_system_message(self, key: str) -> str:
         try:
             with open('system_messages.yml', 'r', encoding='utf-8') as f:
                 all_data = yaml.safe_load(f)
@@ -84,75 +105,84 @@ class Webber:
             logging.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
 
-
-    def switch_llm(self, choice):
-        """starts selected container and stops the other one"""
-        mistral = 'mistral-inference-app'
-        meditron = 'meditron-inference-app'
-
+    def switch_llm(self, selected_model):
         try:
-            if choice == 'Mistral7B':
-                self.docker_client.containers.get(meditron).stop()
-                self.docker_client.containers.get(mistral).start()
-                st.session_state['LLM1'] = True
-                st.session_state['LLM2'] = False
+            if selected_model not in LLM_MODELS:
+                st.warning("Ungültiges Modell gewählt.")
+                return
 
-            elif choice == 'Meditron7B-Untrainiert':
-                self.docker_client.containers.get(mistral).stop()
-                self.docker_client.containers.get(meditron).start()
-                st.session_state['LLM1'] = False
-                st.session_state['LLM2'] = True
+            selected_container = LLM_MODELS[selected_model]['container']
+
+            # Alle anderen Container stoppen
+            for name, model in LLM_MODELS.items():
+                container_name = model['container']
+                if container_name != selected_container:
+                    try:
+                        self.docker_client.containers.get(container_name).stop()
+                    except Exception as e:
+                        logging.warning(f"Konnte Container {container_name} nicht stoppen: {e}")
+
+            # Gewählten Container starten
+            self.docker_client.containers.get(selected_container).start()
+            logging.info(f"Container {selected_container} gestartet")
+
+            st.session_state['active_model'] = selected_model
 
         except Exception as e:
-            logging.error(f"Fehler beim Starten/Stoppen von Containern: {e}")
+            logging.error(f"Fehler beim Umschalten des Modells: {e}")
             st.error(f"Container Error: {e}")
 
     def layout(self):
-        # First row layout
         row1 = st.container(height=self.container_height, border=False)
         self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
 
-
     def intput_textfield(self):
-        #widget inside form (for input)
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
         submit = self.input.form_submit_button('Generieren ...')
-        
-        if submit:
-            logging.info('Generieren Knopf gedrückt')
-            if not text.strip():
-                st.warning('Bitte gib mir Eckdaten für den Bericht:')
-                return
 
-            if st.session_state.get('LLM1') or st.session_state.get('LLM2'):
-                logging.info(f'Vorbereiten API Aufruf mit Prompt-länge {len(text.strip())}')
-                if st.session_state.get('LLM1'):
-                    api_url = 'http://mistral-inference:8100/generate'
-                elif st.session_state.get('LLM2'):
-                    api_url = 'http://meditron-inference:8200/generate'
-                else:
-                    st.warning('Fehlerhafe Modellwahl')
-                    return
+        if not submit:
+            return
 
-                try:
-                    response = requests.post(api_url, json={'prompt': text})
-                    logging.info(f'API Antwort erhalten mit status code {response.status_code}')
-                    if response.status_code == 200:
-                        result = response.json().get("response", "")
-                        if isinstance(result, list):
-                            result = "\n".join(str(item) for item in result)
-                        st.session_state['output_text'] = result
-                    else:
-                        st.error(f'API Error: {response.status_code} - {response.text}')
-                        logging.error(f"API Error: {response.status_code} - {response.text}")
-                except Exception as e:
-                    logging.error(f'Fehler währen API Aufruf: {e}')
-                    st.error(f'Connection error: {e}')
+        logging.info('Generieren Knopf gedrückt')
+        if not text.strip():
+            st.warning('Bitte gib mir Eckdaten für den Bericht:')
+            return
+
+        selected_model = st.session_state.get('active_model')
+        if not selected_model or selected_model not in LLM_MODELS:
+            st.warning("Bitte wähle ein LLM-Modell.")
+            return
+
+        api_url = LLM_MODELS[selected_model]['api_url']
+
+        bericht_typ = st.session_state.get('bericht_typ', '')
+        korrigieren = st.session_state.get('korrigieren', False)
+
+        if bericht_typ and not korrigieren:
+            system_message = self.render_system_message(bericht_typ)
+        elif korrigieren and not bericht_typ:
+            system_message = self.render_system_message('Korrigieren')
+        else:
+            st.warning("Bitte wähle entweder 'Korrigieren' oder einen gültigen Berichtstyp.")
+            return
+
+        prompt = f"SYSTEM: {system_message}\n\nUSER: {text.strip()}"
+
+        try:
+            response = requests.post(api_url, json={'prompt': prompt})
+            logging.info(f'API Antwort erhalten mit status code {response.status_code}')
+            if response.status_code == 200:
+                result = response.json().get("response", "")
+                if isinstance(result, list):
+                    result = "\n".join(str(item) for item in result)
+                st.session_state['output_text'] = result
             else:
-                st.warning('Bitte wähle ein LLM aus bevor du einen Bericht generieren möchtest!')
-                logging.warning('Generiern geklickt ohne LLM Auswahl')
-
+                st.error(f'API Error: {response.status_code} - {response.text}')
+                logging.error(f"API Error: {response.status_code} - {response.text}")
+        except Exception as e:
+            logging.error(f'Fehler während API Aufruf: {e}')
+            st.error(f'Connection error: {e}')
 
     def output_textfield(self):
         output_text = st.session_state.get('output_text', '')
@@ -161,18 +191,16 @@ class Webber:
 
         if output_text:
             st.download_button(
-                    label='Download',
-                    data=output_text,
-                    file_name='report.txt',
-                    mime='text/plain'
-                )
-
+                label='Download',
+                data=output_text,
+                file_name='report.txt',
+                mime='text/plain'
+            )
 
     def add_vertical_space(self, container, lines):
         for _ in range(lines):
             with container:
                 st.write("")
-
 
     def LLM_selection(self):
         with self.input3:
@@ -180,11 +208,10 @@ class Webber:
             with container:
                 self.add_vertical_space(container, lines=3)
                 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-                choice = st.radio('Modellwahl', ['Mistral7B', 'Meditron7B-Untrainiert'], key='llm_choice')
+                choice = st.radio('Modellwahl', list(LLM_MODELS.keys()), key='llm_choice')
                 st.markdown("</div>", unsafe_allow_html=True)
                 self.switch_llm(choice)
                 logging.info(f"LLM-Auswahl: {choice}")
-
 
     def options_panel(self):
         with self.input2:
@@ -204,10 +231,12 @@ class Webber:
                 st.checkbox("Korrigieren", value=st.session_state['korrigieren'],
                             disabled=disable_korrigieren, key="korrigieren")
 
+                berichtstypen = [""] + self.get_available_berichtstypen()
+
                 st.selectbox("Berichtstyp",
-                             ["", "Austrittsbericht"],
-                             index=["", "Austrittsbericht"].index(
-                                 st.session_state['bericht_typ']),
+                             berichtstypen,
+                             index=berichtstypen.index(st.session_state['bericht_typ'])
+                             if st.session_state['bericht_typ'] in berichtstypen else 0,
                              disabled=disable_bericht_typ,
                              key="bericht_typ")
 
