@@ -172,10 +172,11 @@ class Webber:
             st.warning("Bitte wähle entweder 'Korrigieren' oder einen gültigen Berichtstyp.")
             return
 
-        prompt = f"SYSTEM: {system_message}\n\nUSER: {text.strip()}"
+        user_input = text.strip()
 
         try:
-            response = requests.post(api_url, json={'prompt': prompt})
+            response = requests.post(api_url, json={'prompt': user_input,
+                                                    'system_prompt': system_message})
             logging.info(f'API Antwort erhalten mit status code {response.status_code}')
             if response.status_code == 200:
                 result = response.json().get("response", "")
