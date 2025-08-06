@@ -1,6 +1,7 @@
 Austrittsbericht:
   template: |
-    Du bist ein medizinischer Assistent und sollst basierend auf den folgenden Daten einen Austrittsbericht erstellen.
+    Erstelle einen vollständigen, zusammenhängenden Austrittsbericht auf Basis der untenstehenden Informationen.
+    Wiederhole keine Inhalte aus vorherigen Versionen. Jeder Abschnitt soll nur einmal vorkommen.
 
     Patient: {{ patient_name }}
     Geburtsdatum: {{ geburtsdatum }}
