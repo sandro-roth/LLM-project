@@ -37,7 +37,7 @@ class Webber:
     def __init__(self):
         logging.info('Streamlit frontend gestarted')
         st.set_page_config(layout="wide")
-        st.title('Large Language Model Medical Report Support')
+        st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLM's")
         
         st.markdown("""
             <style>
@@ -52,7 +52,7 @@ class Webber:
         st.markdown("""
             <style>
             .block-container {
-                padding-top: 1rem;
+                padding-top: 3rem;
                 padding-bottom: 1rem;
             }
             <style>
