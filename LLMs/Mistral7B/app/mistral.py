@@ -51,6 +51,8 @@ class MistralInferenceLLM(LLM):
                           eos_id=eos_id)
 
         decoded_output = self._tokenizer.decode(output[0])
+        if isinstance(decoded_output, list):
+            decoded_output = ''.join(str(x) for x in decoded_output)
 
         stop_words = stop or ["\n\n", "###", "ENDE"]
         for stop_word in stop_words:
