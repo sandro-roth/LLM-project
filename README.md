@@ -142,10 +142,21 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
    ```sh
    git clone https://github.com/github_username/repo_name.git
    ```
-2. Baue die Images von den jeweiligen Dockerfiles und starte die container
+2. Baue die Images von den jeweiligen Dockerfiles. Dies muss nur 1x ausgeführt werden.
    ```sh
    docker compose build --no-cache
-   docker compose up --build -d
+   ```
+3. Erstelle nun die Container
+   ```sh
+   docker compose up --no-start
+   ```
+4. Jetzt kann die Applikation gestartet werden mit
+   ```sh
+   docker compose start streamlit-web
+   ```
+5. Die Applikation lässt sich stoppen durch
+   ```sh
+   docker compose down
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -167,7 +178,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Weiteres open-source LLM einbinden wie (MedMT5 oder Meditron 7B)
+- [X] Weiteres open-source LLM einbinden wie (MedMT5 oder Meditron 7B)
 - [ ] Hinzufügen von Auswahloptionen wie:
   - [ ] Sprachlich überarbeiten
   - [ ] Art des Berichtes (Dropdown menu)
