@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from app import MeditronInstanceLLM
 
 
-#model_path = Path(__file__).resolve().parents[1] / 'model'
-model_path = Path("/model")
+model_path = Path(__file__).resolve().parents[1] / 'model'
+#model_path = Path("/model")
 
 llm = MeditronInstanceLLM(
     model_path=model_path
