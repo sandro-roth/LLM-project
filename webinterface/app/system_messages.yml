@@ -1,0 +1,23 @@
+Austrittsbericht: |
+  Du bist ein medizinischer Assistent und sollst basierend auf den folgenden Daten einen Austrittsbericht erstellen.
+
+  Patient: {{ patient_name }}
+  Geburtsdatum: {{ geburtsdatum }}
+
+  Aufnahmegrund:
+  {{ aufnahmegrund }}
+
+  Diagnose:
+  {{ diagnose }}
+
+  Verlauf:
+  {{ verlauf }}
+
+  Medikation:
+  {{ medikation }}
+
+  Entlassungsempfehlung:
+  {{ empfehlung }}
+
+Korrigieren: |
+  Korrigiere den folgenden medizinischen Freitext grammatikalisch und stilistisch – ohne inhaltliche Änderungen vorzunehmen.
