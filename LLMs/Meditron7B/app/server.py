@@ -22,8 +22,10 @@ app = FastAPI(
 
 class PromptRequest(BaseModel):
     prompt: str
+    # change to take optional system_prompt
 
 @app.post("/generate")
 def generate_text(request:PromptRequest):
     response=llm.invoke(request.prompt)
+    # change to take optional system_prompt
     return {'response': response}

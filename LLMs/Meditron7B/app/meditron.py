@@ -57,6 +57,11 @@ class MeditronInstanceLLM(LLM):
     def invoke(self, prmt:str) -> str:
         return self._call(prmt)
 
+# change invoke to take optional system_prompt
+
+#    def invoke(self, prmt: str, system_prompt: Optional[str] = None) -> str:
+#        return self._call(prmt=prmt, s_msg=system_prompt)
+
 if __name__ == '__main__':
     path = Path(__file__).resolve().parents[1] / 'model'
     Instance = MeditronInstanceLLM(path)
