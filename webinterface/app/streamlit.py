@@ -30,7 +30,7 @@ if len(log_files) > 30:
 
 class Webber:
     container_height = 380
-    row1_split = [4,1]
+    row1_split = [7, 1.5, 1.5]
     io_form_height = 350
     input_text_height = 240
 
@@ -72,7 +72,7 @@ class Webber:
                 st.session_state['LLM1'] = True
                 st.session_state['LLM2'] = False
 
-            elif choice == 'Meditron7B':
+            elif choice == 'Meditron7B-Untrainiert':
                 self.docker_client.containers.get(mistral).stop()
                 self.docker_client.containers.get(meditron).start()
                 st.session_state['LLM1'] = False
@@ -85,12 +85,8 @@ class Webber:
     def layout(self):
         # First row layout
         row1 = st.container(height=self.container_height, border=False)
-        self.input1, self.input2 = row1.columns(self.row1_split, border=False)
+        self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
-
-        # Second row layout
-        self.input3, self.input4 = self.input1.columns([1, 0.0001], border=False)
-        self.output = self.input3.form('my_output', height=self.io_form_height, border=False)
 
 
     def intput_textfield(self):
@@ -147,24 +143,50 @@ class Webber:
                 )
 
 
+    def add_vertical_space(self, container, lines):
+        for _ in range(lines):
+            with container:
+                st.write("")
+
+
     def LLM_selection(self):
+        with self.input3:
+            container = st.container()
+            with container:
+                self.add_vertical_space(container, lines=3)
+                st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+                choice = st.radio('Modellwahl', ['Mistral7B', 'Meditron7B-Untrainiert'], key='llm_choice')
+                st.markdown("</div>", unsafe_allow_html=True)
+                self.switch_llm(choice)
+                logging.info(f"LLM-Auswahl: {choice}")
+
+
+    def options_panel(self):
         with self.input2:
             container = st.container()
-            for _ in range(6):
-                container.write("")
+            with container:
+                self.add_vertical_space(container, lines=3)
+                st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 
-            # Zentrieren mit Columns
-            left, center, right = container.columns([1, 2, 1])
-            with center:
-                choice = st.radio('Wähle ein Modell', ['Mistral7B', 'Meditron7B'], key='llm_choice')
-                self.switch_llm(choice)
+                if 'korrigieren' not in st.session_state:
+                    st.session_state['korrigieren'] = False
+                if 'bericht_typ' not in st.session_state:
+                    st.session_state['bericht_typ'] = ""
 
-            # Unten weitere Spacer, falls nötig
-            for _ in range(5):
-                container.write("")
+                disable_korrigieren = st.session_state['bericht_typ'] != ""
+                disable_bericht_typ = st.session_state['korrigieren']
 
-            #logging.info(f"LLM1 selected: {st.session_state.get('LLM1', False)}, LLM2 selected: {st.session_state.get('LLM2', False)}")
-            logging.info(f"LLM-Auswahl: {choice}")
+                st.checkbox("Korrigieren", value=st.session_state['korrigieren'],
+                            disabled=disable_korrigieren, key="korrigieren")
+
+                st.selectbox("Berichtstyp",
+                             ["", "Austrittsbericht"],
+                             index=["", "Austrittsbericht"].index(
+                                 st.session_state['bericht_typ']),
+                             disabled=disable_bericht_typ,
+                             key="bericht_typ")
+
+                st.markdown("</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
@@ -172,4 +194,5 @@ if __name__ == "__main__":
     page.layout()
     page.intput_textfield()
     page.output_textfield()
+    page.options_panel()
     page.LLM_selection()
