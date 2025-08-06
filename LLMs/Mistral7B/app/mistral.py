@@ -48,5 +48,5 @@ class MistralInferenceLLM(LLM):
         return self._tokenizer.decode(output[0])
         #return self._tokenizer.instruct_tokenizer.tokenizer.decode(out_tokens[0])
 
-    def invoke(self, prompt:str) -> str:
-        return self._call(prompt)
+    def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        return self._call(prompt=prompt, system_prompt=system_prompt)
