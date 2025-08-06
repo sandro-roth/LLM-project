@@ -2,3 +2,5 @@ streamlit
 fastapi
 requests
 docker
+PyYAML
+Jinja2
