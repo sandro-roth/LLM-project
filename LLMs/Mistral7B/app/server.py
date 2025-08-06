@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Optional
 
 from app import MistralInferenceLLM
 
@@ -20,8 +21,9 @@ app = FastAPI(
 
 class PromptRequest(BaseModel):
     prompt: str
+    system_prompt: Optional[str] = None
 
 @app.post("/generate")
 def generate_text(request:PromptRequest):
-    response = llm.invoke(request.prompt)
+    response = llm.invoke(prompt=request.prompt, system_prompt=request.system_prompt)
     return {"response": response}
