@@ -150,6 +150,12 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
    ```sh
    docker compose up --no-start
    ```
+   
+#### Die Anwendung der Applikation erfolgt auf eigenes Risiko
+> ⚠️ **Hinweis:** Durch die Implementierung von Mehreren LLM's braucht der streamlit container
+> zugriff auf den Docker deamon. Somit hat dieser Container root rechte und sollte deshalb nur lokal
+> zu erreichen sein.
+---
 4. Jetzt kann die Applikation gestartet werden mit
    ```sh
    docker compose start streamlit-web
