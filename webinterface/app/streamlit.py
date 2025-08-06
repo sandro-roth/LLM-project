@@ -76,6 +76,7 @@ class Webber:
 
         self.docker_client = docker.from_env()
 
+
     def get_available_berichtstypen(self):
         try:
             with open("system_messages.yml", "r", encoding="utf-8") as f:
@@ -84,6 +85,7 @@ class Webber:
         except Exception as e:
             logging.error(f"Fehler beim Laden der Berichtstypen: {e}")
             return []
+
 
     def render_system_message(self, key: str) -> str:
         try:
@@ -104,6 +106,7 @@ class Webber:
         except Exception as e:
             logging.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
+
 
     def switch_llm(self, selected_model):
         try:
@@ -132,10 +135,12 @@ class Webber:
             logging.error(f"Fehler beim Umschalten des Modells: {e}")
             st.error(f"Container Error: {e}")
 
+
     def layout(self):
         row1 = st.container(height=self.container_height, border=False)
         self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
+
 
     def intput_textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
@@ -184,6 +189,7 @@ class Webber:
             logging.error(f'Fehler während API Aufruf: {e}')
             st.error(f'Connection error: {e}')
 
+
     def output_textfield(self):
         output_text = st.session_state.get('output_text', '')
         logging.info(f'Der Ausgabe text hat eine Länge von {len(output_text)}')
@@ -197,10 +203,12 @@ class Webber:
                 mime='text/plain'
             )
 
+
     def add_vertical_space(self, container, lines):
         for _ in range(lines):
             with container:
                 st.write("")
+
 
     def LLM_selection(self):
         with self.input3:
@@ -212,6 +220,7 @@ class Webber:
                 st.markdown("</div>", unsafe_allow_html=True)
                 self.switch_llm(choice)
                 logging.info(f"LLM-Auswahl: {choice}")
+
 
     def options_panel(self):
         with self.input2:
