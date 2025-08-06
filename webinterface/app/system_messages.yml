@@ -32,4 +32,7 @@ Austrittsbericht:
 
 Korrigieren:
   template: |
-    Korrigiere den folgenden medizinischen Text grammatikalisch und stilistisch, ohne inhaltliche Änderungen vorzunehmen.
+    Korrigiere den folgenden Text ausschließlich hinsichtlich Rechtschreibung, Grammatik und Zeichensetzung.
+    Behalte alle Zeilen, die Reihenfolge und die Struktur exakt bei.
+    Füge **keine** Informationen hinzu, entferne **nichts** und kommentiere nichts.
+    Gib ausschließlich den korrigierten Text zurück.
