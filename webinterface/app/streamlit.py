@@ -1,13 +1,12 @@
 import streamlit as st
+import docker
 import requests
 import logging
 from datetime import datetime
 import glob
 import os
 
-
 log_dir = 'logs'
-
 log_filename = datetime.now().strftime('%Y-%m-%d') + '.log'
 log_path = os.path.join(log_dir, log_filename)
 
@@ -19,7 +18,6 @@ logging.basicConfig(
 
 # Delete oldest log if more than 30 log files exist
 log_files = sorted(glob.glob(os.path.join(log_dir, "*.log")), key=os.path.getmtime)
-
 if len(log_files) > 30:
     files_to_delete = log_files[:len(log_files) - 30]
     for file_path in files_to_delete:
@@ -60,6 +58,29 @@ class Webber:
             <style>
         """, unsafe_allow_html=True)
 
+        self.docker_client = docker.from_env()
+
+    def switch_llm(self, choice):
+        """starts selected container and stops the other one"""
+        mistral = 'mistral-inference'
+        meditron = 'meditron-inference'
+
+        try:
+            if choice == 'Mistral7B':
+                self.docker_client.containers.get(meditron).stop()
+                self.docker_client.containers.get(mistral).start()
+                st.session_state['LLM1'] = True
+                st.session_state['LLM2'] = False
+
+            elif choice == 'Meditron7B':
+                self.docker_client.containers.get(mistral).stop()
+                self.docker_client.containers.get(meditron).start()
+                st.session_state['LLM1'] = False
+                st.session_state['LLM2'] = True
+
+        except Exception as e:
+            logging.error(f"Fehler beim Starten/Stoppen von Containern: {e}")
+            st.error(f"Container Error: {e}")
 
     def layout(self):
         # First row layout
@@ -88,7 +109,10 @@ class Webber:
                 if st.session_state.get('LLM1'):
                     api_url = 'http://mistral-inference:8100/generate'
                 elif st.session_state.get('LLM2'):
-                    pass
+                    api_url = 'http://meditron-inference:8200/generate'
+                else:
+                    st.warning('Fehlerhafe Modellwahl')
+                    return
 
                 try:
                     response = requests.post(api_url, json={'prompt': text})
@@ -132,14 +156,15 @@ class Webber:
             # Zentrieren mit Columns
             left, center, right = container.columns([1, 2, 1])
             with center:
-                st.session_state['LLM1'] = st.checkbox('Mistral7B')
-                st.session_state['LLM2'] = st.checkbox('Other')
+                choice = st.radio('Wähle ein Modell', ['Mistral7B', 'Meditron7B'], key='llm_choice')
+                self.switch_llm(choice)
 
             # Unten weitere Spacer, falls nötig
             for _ in range(5):
                 container.write("")
 
-            logging.info(f"LLM1 selected: {st.session_state.get('LLM1', False)}, LLM2 selected: {st.session_state.get('LLM2', False)}")
+            #logging.info(f"LLM1 selected: {st.session_state.get('LLM1', False)}, LLM2 selected: {st.session_state.get('LLM2', False)}")
+            logging.info(f"LLM-Auswahl: {choice}")
 
 
 if __name__ == "__main__":
