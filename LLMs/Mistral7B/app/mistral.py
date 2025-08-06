@@ -34,10 +34,11 @@ class MistralInferenceLLM(LLM):
     def _llm_type(self) -> str:
         return 'mistral_inference'
 
-    def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        
+    def _call(self, prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
+        system_message = SystemMessage(role='system', content=system_prompt) if system_prompt else self._system_message
+
         user_message = UserMessage(role='user', content=prompt)
-        completion_request = ChatCompletionRequest(messages=[self._system_message, user_message])
+        completion_request = ChatCompletionRequest(messages=[system_message, user_message])
         tokens = self._tokenizer.encode_chat_completion(completion_request).tokens
 
         # Text generieren
