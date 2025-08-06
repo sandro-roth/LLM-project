@@ -62,8 +62,8 @@ class Webber:
 
     def switch_llm(self, choice):
         """starts selected container and stops the other one"""
-        mistral = 'mistral-inference'
-        meditron = 'meditron-inference'
+        mistral = 'mistral-inference-app'
+        meditron = 'meditron-inference-app'
 
         try:
             if choice == 'Mistral7B':
