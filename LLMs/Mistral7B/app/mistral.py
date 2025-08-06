@@ -41,12 +41,25 @@ class MistralInferenceLLM(LLM):
         completion_request = ChatCompletionRequest(messages=[system_message, user_message])
         tokens = self._tokenizer.encode_chat_completion(completion_request).tokens
 
-        # Text generieren
-        # out_tokens = generate([tokens], self._model, self._max_tokens, self._temperature, eos_id=self._tokenizer.instruct_tokenizer.tokenizer.eos_id)
-        output = generate([tokens], self._model, max_tokens=self._max_tokens, temperature=self._temperature)
+        eos_id = self._tokenizer.instruct_tokenizer.tokenizer.eos_id
 
-        return self._tokenizer.decode(output[0])
-        #return self._tokenizer.instruct_tokenizer.tokenizer.decode(out_tokens[0])
+        # Text generieren
+        output = generate([tokens],
+                          self._model,
+                          max_tokens=self._max_tokens,
+                          temperature=self._temperature,
+                          eos_id=eos_id)
+
+        decoded_output = self._tokenizer.decode(output[0])
+
+        stop_words = stop or ["\n\n", "###", "ENDE"]
+        for stop_word in stop_words:
+            if stop_word in decoded_output:
+                decoded_output = decoded_output.split(stop_word)[0]
+                break
+
+        return decoded_output.strip()
+
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         return self._call(prompt=prompt, system_prompt=system_prompt)
