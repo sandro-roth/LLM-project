@@ -8,6 +8,7 @@ services:
     container_name: mistral-inference-app
     ports:
       - "8100:8100"
+    restart: "no"
     volumes:
       - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
       - ./LLMs/Mistral7B/mistral-7B-v0.1:/app/mistral-7B-v0.1
@@ -18,6 +19,7 @@ services:
             - driver: nvidia        # explicitly required
               capabilities: [gpu]
               #device_ids: ["0", "1"]  # limit to specific GPU card
+    profiles: ["default"]
 
   streamlit-web:
     build:
@@ -31,3 +33,22 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
     depends_on:
       - mistral-inference
+    profiles: ["default"]
+
+  meditron-inference:
+    build:
+      context: ./LLMs/Meditron7B
+      dockerfile: Dockerfile
+    container_name: meditron-inference-app
+    ports:
+      - '8200:8200'
+    restart: "no"
+    volumes:
+      - ./LLMs/Meditron7B/model:/app/model
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    profiles: ['manual']
