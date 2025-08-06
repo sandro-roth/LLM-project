@@ -1,23 +1,34 @@
-Austrittsbericht: |
-  Du bist ein medizinischer Assistent und sollst basierend auf den folgenden Daten einen Austrittsbericht erstellen.
+Austrittsbericht:
+  template: |
+    Du bist ein medizinischer Assistent und sollst basierend auf den folgenden Daten einen Austrittsbericht erstellen.
 
-  Patient: {{ patient_name }}
-  Geburtsdatum: {{ geburtsdatum }}
+    Patient: {{ patient_name }}
+    Geburtsdatum: {{ geburtsdatum }}
 
-  Aufnahmegrund:
-  {{ aufnahmegrund }}
+    Aufnahmegrund:
+    {{ aufnahmegrund }}
 
-  Diagnose:
-  {{ diagnose }}
+    Diagnose:
+    {{ diagnose }}
 
-  Verlauf:
-  {{ verlauf }}
+    Verlauf:
+    {{ verlauf }}
 
-  Medikation:
-  {{ medikation }}
+    Medikation:
+    {{ medikation }}
 
-  Entlassungsempfehlung:
-  {{ empfehlung }}
+    Entlassungsempfehlung:
+    {{ empfehlung }}
 
-Korrigieren: |
-  Korrigiere den folgenden medizinischen Freitext grammatikalisch und stilistisch – ohne inhaltliche Änderungen vorzunehmen.
+  context:
+    patient_name: Max Mustermann
+    geburtsdatum: 01.01.1980
+    aufnahmegrund: Sturz mit Oberschenkelhalsfraktur
+    diagnose: Fraktur des rechten Oberschenkelhalses
+    verlauf: Der Patient wurde operativ versorgt und mobilisiert.
+    medikation: Ibuprofen 600mg, Marcumar
+    empfehlung: Kontrolle beim Hausarzt in 7 Tagen.
+
+Korrigieren:
+  template: |
+    Korrigiere den folgenden medizinischen Text grammatikalisch und stilistisch, ohne inhaltliche Änderungen vorzunehmen.
