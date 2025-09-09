@@ -26,3 +26,10 @@ env/
 # Ignore specific editor folder
 .vscode/
 .idea/
+
+# Ignore certifications
+certs
+
+# Ingore model files
+model
+mistral-7B-Instruct-v0.3
