@@ -1,4 +1,5 @@
 mistral-inference==1.6.0
+mistral-common[sentencepiece]
 fastapi
 pydantic
 uvicorn
