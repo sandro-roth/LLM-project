@@ -10,16 +10,36 @@ import yaml
 from jinja2 import Template
 
 # === zentrale Modellkonfiguration ===
+#LLM_MODELS = {
+#    'Mistral7B': {
+#        'container': 'mistral-inference-app',
+#        'api_url': 'http://mistral-inference:8100/generate'
+#    },
+#    'Meditron7B-Untrainiert': {
+#        'container': 'meditron-inference-app',
+#        'api_url': 'http://meditron-inference:8200/generate'
+#    }
+#}
+API_MISTRAL  = os.getenv("API_BASE_URL_MISTRAL",  "http://mistral-inference:8100")
+API_MEDITRON = os.getenv("API_BASE_URL_MEDITRON", "http://meditron-inference:8200")
+
+# Requests-Session ohne Proxy (wichtig gegen BlueCoat)
+session = requests.Session()
+session.trust_env = False
+
 LLM_MODELS = {
     'Mistral7B': {
         'container': 'mistral-inference-app',
-        'api_url': 'http://mistral-inference:8100/generate'
+        'api_url': f'{API_MISTRAL}/generate'
     },
     'Meditron7B-Untrainiert': {
         'container': 'meditron-inference-app',
-        'api_url': 'http://meditron-inference:8200/generate'
+        'api_url': f'{API_MEDITRON}/generate'
     }
 }
+
+
+
 
 # === Logging Setup ===
 log_dir = 'logs'
@@ -175,8 +195,13 @@ class Webber:
         user_input = text.strip()
 
         try:
-            response = requests.post(api_url, json={'prompt': user_input,
-                                                    'system_prompt': system_message})
+#            response = requests.post(api_url, json={'prompt': user_input,
+#                                                    'system_prompt': system_message})
+            response = session.post(
+              api_url,
+              json={'prompt': user_input, 'system_prompt': system_message},
+              timeout=60)
+
             logging.info(f'API Antwort erhalten mit status code {response.status_code}')
             if response.status_code == 200:
                 result = response.json().get("response", "")
