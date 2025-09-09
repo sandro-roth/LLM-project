@@ -54,7 +54,7 @@ class MistralInferenceLLM(LLM):
         if isinstance(decoded_output, list):
             decoded_output = ''.join(str(x) for x in decoded_output)
 
-        stop_words = stop or ["\n\n", "###", "ENDE"]
+        stop_words = stop or ["###", "ENDE"]
         for stop_word in stop_words:
             if stop_word in decoded_output:
                 decoded_output = decoded_output.split(stop_word)[0]
