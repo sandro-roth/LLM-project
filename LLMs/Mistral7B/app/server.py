@@ -4,8 +4,11 @@ from typing import Optional
 
 from app import MistralInferenceLLM
 
-model_path = 'mistral-7B-Instruct-v0.3'
-tokenizer_path = 'mistral-7B-Instruct-v0.3/tokenizer.model.v3'
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent  # -> /app
+
+model_path = str(BASE_DIR / 'mistral-7B-Instruct-v0.3')
+tokenizer_path = str(BASE_DIR / 'mistral-7B-Instruct-v0.3' / 'tokenizer.model.v3')
 
 llm = MistralInferenceLLM(
         model_path=model_path,
