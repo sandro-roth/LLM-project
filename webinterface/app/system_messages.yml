@@ -30,9 +30,39 @@ Austrittsbericht:
     medikation: Ibuprofen 600mg, Marcumar
     empfehlung: Kontrolle beim Hausarzt in 7 Tagen.
 
+
 Korrigieren:
   template: |
-    Korrigiere den folgenden Text ausschließlich hinsichtlich Rechtschreibung, Grammatik und Zeichensetzung.
-    Behalte alle Zeilen, die Reihenfolge und die Struktur exakt bei.
-    Füge **keine** Informationen hinzu, entferne **nichts** und kommentiere nichts.
+    Korrigiere den folgenden Text ausschließlich hinsichtlich Rechtschreibung, Grammatik und Zeichensetzung. 
+    Achte besonders auf:
+    - Groß- und Kleinschreibung
+    - Kommasetzung
+    - Korrekte Verwendung von Artikeln, Kasus, Genus und Numerus (z. B. "der Patientin" statt "die Patientin")
+    - Einheitliche und richtige Flexionen
+
+    Regeln:
+    - Behalte jede Zeile und die Reihenfolge exakt bei.
+    - Entferne keinen Inhalt und füge nichts Neues hinzu.
+    - Kommentiere nichts, erkläre nichts.
+    - Ersetze jedes Vorkommen von "XX" oder "xx" durch: --> Missing Value <--
+
+    Beispiele:
+    Eingabe:  Die Patientin klagt über seit XX Tagen bestehenden Schmerzen.
+    Ausgabe:  Die Patientin klagt seit --> Missing Value <-- Tagen über bestehende Schmerzen.
+
+    Eingabe:  Geburtsdatum: xx.xx.1980
+    Ausgabe:  Geburtsdatum: --> Missing Value <-- .1980
+
+    Eingabe:  Der Patient erhielt XX mg Ibuprofen.
+    Ausgabe:  Der Patient erhielt --> Missing Value <-- mg Ibuprofen.
+
+    Eingabe:  Die Patientin wurde von der Arzt untersucht.
+    Ausgabe:  Die Patientin wurde von dem Arzt untersucht.
+
+    Eingabe:  Der Patientin geht es besser.
+    Ausgabe:  Der Patientin geht es besser.   # korrekt, keine Änderung nötig
+
+    Eingabe:  Die Patientin geht es besser.
+    Ausgabe:  Der Patientin geht es besser.
+
     Gib ausschließlich den korrigierten Text zurück.
