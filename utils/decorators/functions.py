@@ -7,15 +7,11 @@ def timeit(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
-        result = func(*args, **kwargs)
-        end_time = time.perf_counter()
-        total_time = end_time - start_time
-
-        logger = logging.getLogger(__name__)
-        logger.info(
-            f"Function {func.__qualname__} took {total_time:.4f} seconds "
-            f"with args={args} kwargs={kwargs}"
-        )
-
-        return result
+        try:
+            return func(*args, **kwargs)
+        finally:
+            total_time = time.perf_counter() - start_time
+            logger = logging.getLogger()
+            logger.info("Function %s took %.4f s (args=%s, kwargs=%s)",
+                        func.__qualname__, total_time, args[:1], {k: type(v).__name__ for k, v in kwargs.items()})
     return wrapper
