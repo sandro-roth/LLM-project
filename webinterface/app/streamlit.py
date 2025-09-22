@@ -1,6 +1,4 @@
 import requests
-from datetime import datetime
-import glob
 import os
 
 import streamlit as st
@@ -11,16 +9,6 @@ from jinja2 import Template
 from utils import setup_logging
 
 # === zentrale Modellkonfiguration ===
-#LLM_MODELS = {
-#    'Mistral7B': {
-#        'container': 'mistral-inference-app',
-#        'api_url': 'http://mistral-inference:8100/generate'
-#    },
-#    'Meditron7B-Untrainiert': {
-#        'container': 'meditron-inference-app',
-#        'api_url': 'http://meditron-inference:8200/generate'
-#    }
-#}
 API_MISTRAL  = os.getenv("API_BASE_URL_MISTRAL",  "http://mistral-inference:8100")
 API_MEDITRON = os.getenv("API_BASE_URL_MEDITRON", "http://meditron-inference:8200")
 
@@ -38,8 +26,6 @@ LLM_MODELS = {
         'api_url': f'{API_MEDITRON}/generate'
     }
 }
-
-
 
 
 # === Logging Setup ===
