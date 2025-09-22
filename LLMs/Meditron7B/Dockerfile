@@ -7,6 +7,13 @@ ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG NO_PROXY
 
+# --- Logging (Build-Arg → ENV) ---
+ARG LOG_DIR=/var/log/llm
+ENV LOG_DIR=${LOG_DIR}
+
+# Logs-Ordner sicherstellen
+RUN mkdir -p $LOG_DIR && chmod 777 $LOG_DIR
+
 
 # --- Nur CA-Zertifikate installieren, wenn Proxy aktiv ---
 RUN set -eux; \

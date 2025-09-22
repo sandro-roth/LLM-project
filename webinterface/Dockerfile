@@ -12,6 +12,12 @@ ENV http_proxy=${http_proxy} \
     NO_PROXY=${no_proxy}
 
 
+# --- Logging (Build-Arg → ENV) ---
+ARG LOG_DIR=/var/log/llm
+ENV LOG_DIR=${LOG_DIR}
+
+# Logs-Ordner sicherstellen
+RUN mkdir -p $LOG_DIR && chmod 777 $LOG_DIR
 
 # --- CA-Zertifikate ins Image bringen und registrieren ---
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*

@@ -8,6 +8,7 @@ services:
         HTTP_PROXY: ${HTTP_PROXY}
         HTTPS_PROXY: ${HTTPS_PROXY}
         NO_PROXY: ${NO_PROXY}
+        LOG_DIR: ${LOG_DIR}
     container_name: mistral-inference-app
     ports:
       - "8100:8100"
@@ -36,6 +37,7 @@ services:
         HTTP_PROXY: ${HTTP_PROXY}
         HTTPS_PROXY: ${HTTPS_PROXY}
         NO_PROXY: ${NO_PROXY}
+        LOG_DIR: ${LOG_DIR}
     container_name: streamlit-web-app
     ports:
       - "8501:8501"
@@ -65,6 +67,7 @@ services:
         HTTP_PROXY: ${HTTP_PROXY}
         HTTPS_PROXY: ${HTTPS_PROXY}
         NO_PROXY: ${NO_PROXY}
+        LOG_DIR: ${LOG_DIR}
     container_name: meditron-inference-app
     ports:
       - "8200:8200"
