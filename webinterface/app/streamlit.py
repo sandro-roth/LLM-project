@@ -8,6 +8,8 @@ from jinja2 import Template
 
 from utils import setup_logging
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # === zentrale Modellkonfiguration ===
 API_MISTRAL  = os.getenv("API_BASE_URL_MISTRAL",  "http://mistral-inference:8100")
 API_MEDITRON = os.getenv("API_BASE_URL_MEDITRON", "http://meditron-inference:8200")
@@ -30,7 +32,6 @@ LLM_MODELS = {
 
 # === Logging Setup ===
 LOGGER = setup_logging(app_name='streamlit-web', retention=30)
-
 
 class Webber:
     container_height = 380
@@ -67,7 +68,8 @@ class Webber:
 
     def get_available_berichtstypen(self):
         try:
-            with open("system_messages.yml", "r", encoding="utf-8") as f:
+            filepath = os.path.join(BASE_DIR, 'system_messages.yml')
+            with open(filepath, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
                 return [key for key in data if key != "Korrigieren"]
         except Exception as e:
@@ -77,7 +79,8 @@ class Webber:
 
     def render_system_message(self, key: str) -> str:
         try:
-            with open('system_messages.yml', 'r', encoding='utf-8') as f:
+            filepath = os.path.join(BASE_DIR, 'system_messages.yml')
+            with open(filepath, 'r', encoding='utf-8') as f:
                 all_data = yaml.safe_load(f)
 
             entry = all_data.get(key)
