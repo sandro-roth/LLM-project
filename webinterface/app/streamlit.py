@@ -1,5 +1,4 @@
 import requests
-import logging
 from datetime import datetime
 import glob
 import os
@@ -8,6 +7,8 @@ import streamlit as st
 import docker
 import yaml
 from jinja2 import Template
+
+from utils import setup_logging
 
 # === zentrale Modellkonfiguration ===
 #LLM_MODELS = {
@@ -42,26 +43,7 @@ LLM_MODELS = {
 
 
 # === Logging Setup ===
-log_dir = 'logs'
-log_filename = datetime.now().strftime('%Y-%m-%d') + '.log'
-log_path = os.path.join(log_dir, log_filename)
-
-logging.basicConfig(
-        filename=log_path,
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
-# Delete oldest log if more than 30 log files exist
-log_files = sorted(glob.glob(os.path.join(log_dir, "*.log")), key=os.path.getmtime)
-if len(log_files) > 30:
-    files_to_delete = log_files[:len(log_files) - 30]
-    for file_path in files_to_delete:
-        try:
-            os.remove(file_path)
-            logging.info(f"Deleted old log file: {file_path}")
-        except Exception as e:
-            logging.error(f"Failed to delete old log file {file_path}: {e}")
+LOGGER = setup_logging(app_name='streamlit-web', retention=30)
 
 
 class Webber:
@@ -71,7 +53,7 @@ class Webber:
     input_text_height = 240
 
     def __init__(self):
-        logging.info('Streamlit frontend gestartet')
+        LOGGER.info('Streamlit frontend gestartet')
         st.set_page_config(layout="wide")
         st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLM's")
 
@@ -103,7 +85,7 @@ class Webber:
                 data = yaml.safe_load(f)
                 return [key for key in data if key != "Korrigieren"]
         except Exception as e:
-            logging.error(f"Fehler beim Laden der Berichtstypen: {e}")
+            LOGGER.error(f"Fehler beim Laden der Berichtstypen: {e}")
             return []
 
 
@@ -114,7 +96,7 @@ class Webber:
 
             entry = all_data.get(key)
             if not entry:
-                logging.warning(f'Kein Template für Schlüssel {key} gefunden.')
+                LOGGER.warning(f'Kein Template für Schlüssel {key} gefunden.')
                 return ""
 
             template_str = entry.get('template', '')
@@ -124,7 +106,7 @@ class Webber:
             return template.render(context)
 
         except Exception as e:
-            logging.error(f'Fehler beim Rendern der Systemnachricht: {e}')
+            LOGGER.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
 
 
@@ -143,16 +125,16 @@ class Webber:
                     try:
                         self.docker_client.containers.get(container_name).stop()
                     except Exception as e:
-                        logging.warning(f"Konnte Container {container_name} nicht stoppen: {e}")
+                        LOGGER.warning(f"Konnte Container {container_name} nicht stoppen: {e}")
 
             # Gewählten Container starten
             self.docker_client.containers.get(selected_container).start()
-            logging.info(f"Container {selected_container} gestartet")
+            LOGGER.info(f"Container {selected_container} gestartet")
 
             st.session_state['active_model'] = selected_model
 
         except Exception as e:
-            logging.error(f"Fehler beim Umschalten des Modells: {e}")
+            LOGGER.error(f"Fehler beim Umschalten des Modells: {e}")
             st.error(f"Container Error: {e}")
 
 
@@ -169,7 +151,7 @@ class Webber:
         if not submit:
             return
 
-        logging.info('Generieren Knopf gedrückt')
+        LOGGER.info('Generieren Knopf gedrückt')
         if not text.strip():
             st.warning('Bitte gib mir Eckdaten für den Bericht:')
             return
@@ -202,7 +184,7 @@ class Webber:
               json={'prompt': user_input, 'system_prompt': system_message},
               timeout=60)
 
-            logging.info(f'API Antwort erhalten mit status code {response.status_code}')
+            LOGGER.info(f'API Antwort erhalten mit status code {response.status_code}')
             if response.status_code == 200:
                 result = response.json().get("response", "")
                 if isinstance(result, list):
@@ -210,15 +192,15 @@ class Webber:
                 st.session_state['output_text'] = result
             else:
                 st.error(f'API Error: {response.status_code} - {response.text}')
-                logging.error(f"API Error: {response.status_code} - {response.text}")
+                LOGGER.error(f"API Error: {response.status_code} - {response.text}")
         except Exception as e:
-            logging.error(f'Fehler während API Aufruf: {e}')
+            LOGGER.error(f'Fehler während API Aufruf: {e}')
             st.error(f'Connection error: {e}')
 
 
     def output_textfield(self):
         output_text = st.session_state.get('output_text', '')
-        logging.info(f'Der Ausgabe text hat eine Länge von {len(output_text)}')
+        LOGGER.info(f'Der Ausgabe text hat eine Länge von {len(output_text)}')
         st.text_area('Das ist dein Report:', value=output_text, height=self.input_text_height, disabled=True)
 
         if output_text:
@@ -245,7 +227,7 @@ class Webber:
                 choice = st.radio('Modellwahl', list(LLM_MODELS.keys()), key='llm_choice')
                 st.markdown("</div>", unsafe_allow_html=True)
                 self.switch_llm(choice)
-                logging.info(f"LLM-Auswahl: {choice}")
+                LOGGER.info(f"LLM-Auswahl: {choice}")
 
 
     def options_panel(self):
