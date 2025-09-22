@@ -1,5 +1,3 @@
-import os
-
 from langchain_core.language_models import LLM
 from typing import Optional, List, Any, Mapping
 
@@ -10,6 +8,8 @@ from mistral_common.protocol.instruct.messages import UserMessage, SystemMessage
 from mistral_common.protocol.instruct.request import ChatCompletionRequest
 
 from utils import timeit
+from utils import setup_logging
+
 
 class MistralInferenceLLM(LLM):
     def __init__(self, model_path: str, tokenizer_path: str, temperature: float = 0.0, max_tokens: int = 1000):
