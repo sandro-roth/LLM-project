@@ -14,7 +14,7 @@ llm = MistralInferenceLLM(
         model_path=model_path,
         tokenizer_path=tokenizer_path,
         temperature=0.0,
-        max_tokens=1800
+        max_tokens=250
 )
 
 app = FastAPI(
