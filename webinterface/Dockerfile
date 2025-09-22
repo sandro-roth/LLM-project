@@ -11,9 +11,6 @@ ARG NO_PROXY
 ARG LOG_DIR=/var/log/llm
 ENV LOG_DIR=${LOG_DIR}
 
-# Logs-Ordner sicherstellen
-RUN mkdir -p $LOG_DIR && chmod 777 $LOG_DIR
-
 # --- CA-Zertifikate nur, wenn Proxy aktiv ---
 RUN set -eux; \
     if [ "$USE_PROXY" = "true" ]; then \
@@ -55,21 +52,25 @@ RUN set -eux; \
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
+COPY webinterface/requirements.txt ./requirements.txt
 RUN set -eux; \
     if [ "$USE_PROXY" = "true" ]; then \
         export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
     fi; \
     python -m pip install --upgrade pip && \
-    pip install --no-cache-dir -r /app/requirements.txt
+    pip install --no-cache-dir -r requirements.txt
 
-COPY app /app
+# Selective copying
+COPY utils/ ./utils/
+COPY webinterface/app/ ./webinterface/app/
 
-RUN mkdir -p /app/logs
+# Logs-folder
+RUN mkdir -p "$LOG_DIR/streamlit-web" && chmod -R 777 "$LOG_DIR"
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "webinterface/app/streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]

@@ -12,7 +12,7 @@ ARG LOG_DIR=/var/log/llm
 ENV LOG_DIR=${LOG_DIR}
 
 # Logs-Ordner sicherstellen
-RUN mkdir -p $LOG_DIR && chmod 777 $LOG_DIR
+RUN mkdir -p "$LOG_DIR/meditron-inference" && chmod -R 777 "$LOG_DIR"
 
 
 # --- Nur CA-Zertifikate installieren, wenn Proxy aktiv ---
@@ -53,12 +53,13 @@ RUN set -eux; \
 # --- Env config ---
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 # Set working directory
 WORKDIR /app
 
 # --- Requirements installieren ---
-COPY requirements.txt /app/requirements.txt
+COPY LLMs/Meditron7B/requirements.txt /app/requirements.txt
 RUN set -eux; \
     if [ "$USE_PROXY" = "true" ]; then \
         export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
@@ -68,7 +69,8 @@ RUN set -eux; \
 
 
 # Copy app folder into container
-COPY app /app/app
+COPY utils/ /app/utils/
+COPY LLMs/Meditron7B/app/ /app/app/
 
 # Expose port for FastAPI
 EXPOSE 8200

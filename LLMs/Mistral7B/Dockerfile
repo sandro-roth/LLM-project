@@ -11,8 +11,8 @@ ARG NO_PROXY
 ARG LOG_DIR=/var/log/llm
 ENV LOG_DIR=${LOG_DIR}
 
-# Logs-Ordner sicherstellen
-RUN mkdir -p $LOG_DIR && chmod 777 $LOG_DIR
+# Logs-Ordner sicherstellen (plus Service-Unterordner)
+RUN mkdir -p "$LOG_DIR/mistral-inference" && chmod -R 777 "$LOG_DIR"
 
 
 # --- CA-Zertifikate nur, wenn Proxy aktiv ---
@@ -52,12 +52,13 @@ RUN set -eux; \
 # --- Python Env Settings ---
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 # Set working directory
 WORKDIR /app
 
 # --- Requirements installieren ---
-COPY requirements.txt /app/requirements.txt
+COPY LLMs/Mistral7B/requirements.txt /app/requirements.txt
 RUN set -eux; \
     if [ "$USE_PROXY" = "true" ]; then \
         export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
@@ -67,7 +68,8 @@ RUN set -eux; \
 
 
 # --- App kopieren ---
-COPY app /app/app
+COPY utils/ /app/utils/
+COPY LLMs/Mistral7B/app /app/app
 
 # --- Port freigeben ---
 EXPOSE 8100
