@@ -31,7 +31,7 @@ LLM_MODELS = {
 
 
 # === Logging Setup ===
-LOGGER = setup_logging(app_name='streamlit-web', retention=30)
+LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
 
 class Webber:
     container_height = 380
@@ -166,8 +166,6 @@ class Webber:
         user_input = text.strip()
 
         try:
-#            response = requests.post(api_url, json={'prompt': user_input,
-#                                                    'system_prompt': system_message})
             response = session.post(
               api_url,
               json={'prompt': user_input, 'system_prompt': system_message},
