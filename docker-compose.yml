@@ -1,8 +1,8 @@
 services:
   mistral-inference:
     build:
-      context: ./LLMs/Mistral7B
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: LLMs/Mistral7B/Dockerfile
       args:
         USE_PROXY: ${USE_PROXY}
         HTTP_PROXY: ${HTTP_PROXY}
@@ -30,8 +30,8 @@ services:
 
   streamlit-web:
     build:
-      context: ./webinterface
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: webinterface/Dockerfile
       args:
         USE_PROXY: ${USE_PROXY}
         HTTP_PROXY: ${HTTP_PROXY}
@@ -60,8 +60,8 @@ services:
 
   meditron-inference:
     build:
-      context: ./LLMs/Meditron7B
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: LLMs/Meditron7B/Dockerfile
       args:
         USE_PROXY: ${USE_PROXY}
         HTTP_PROXY: ${HTTP_PROXY}
