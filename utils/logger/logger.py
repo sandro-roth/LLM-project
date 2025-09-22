@@ -32,7 +32,7 @@ def setup_logging(
         interval=1,
         backupCount=retention,
         encoding="utf-8",
-        utc=False,  # falls du in der Container-Locale bleiben willst
+        utc=False,
     )
     file_fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(file_fmt)
