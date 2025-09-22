@@ -9,6 +9,8 @@ from mistral_common.tokens.tokenizers.mistral import MistralTokenizer
 from mistral_common.protocol.instruct.messages import UserMessage, SystemMessage
 from mistral_common.protocol.instruct.request import ChatCompletionRequest
 
+from utils import timeit
+
 class MistralInferenceLLM(LLM):
     def __init__(self, model_path: str, tokenizer_path: str, temperature: float = 0.0, max_tokens: int = 1000):
         super().__init__()
@@ -34,6 +36,8 @@ class MistralInferenceLLM(LLM):
     def _llm_type(self) -> str:
         return 'mistral_inference'
 
+
+    @timeit
     def _call(self, prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
         system_message = SystemMessage(role='system', content=system_prompt) if system_prompt else self._system_message
 
