@@ -12,6 +12,6 @@ def timeit(func):
         finally:
             total_time = time.perf_counter() - start_time
             logger = logging.getLogger()
-            logger.info("Function %s took %.4f s (args=%s, kwargs=%s)",
-                        func.__qualname__, total_time, args[:1], {k: type(v).__name__ for k, v in kwargs.items()})
+            logger.info("Function %s took %.4f s",
+                        func.__qualname__, total_time)
     return wrapper
