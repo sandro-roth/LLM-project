@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from typing import Optional
 
 from app import MistralInferenceLLM
-
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent  # -> /app
 
 model_path = str(BASE_DIR / 'mistral-7B-Instruct-v0.3')
