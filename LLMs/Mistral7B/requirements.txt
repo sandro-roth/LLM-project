@@ -6,3 +6,4 @@ uvicorn
 langchain_community
 langchain
 requests
+torch
