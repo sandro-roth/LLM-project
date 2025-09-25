@@ -3,19 +3,21 @@ services:
     build:
       context: .
       dockerfile: LLMs/Inference.Dockerfile
+      target: ${DOCKER_INFERENCE}
       args:
+        DOCKER_INFERENCE: ${DOCKER_INFERENCE}
         USE_PROXY: ${USE_PROXY}
         HTTP_PROXY: ${HTTP_PROXY}
         HTTPS_PROXY: ${HTTPS_PROXY}
         NO_PROXY: ${NO_PROXY}
         LOG_DIR: ${LOG_DIR}
-    container_name: mistral-inference-app
+    container_name: llm-inference
     ports:
       - "8100:8100"
     restart: "no"
     volumes:
-      - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
-      - ./LLMs/Mistral7B/mistral-7B-v0.1:/app/mistral-7B-v0.1
+      - ./LLMs/Mistral7B:/app/Mistral7B
+      - ./LLMs/Meditron7B:/app/Meditron7B
     gpus: all
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
