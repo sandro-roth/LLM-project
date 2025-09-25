@@ -1,8 +1,8 @@
 services:
-  mistral-inference:
+  inference:
     build:
       context: .
-      dockerfile: LLMs/Mistral7B/Dockerfile
+      dockerfile: LLMs/Inference.Dockerfile
       args:
         USE_PROXY: ${USE_PROXY}
         HTTP_PROXY: ${HTTP_PROXY}
