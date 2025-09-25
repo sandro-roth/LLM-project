@@ -191,6 +191,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [X] Projekt verändern, sodass nur 1 LLM verwendet wird
   - [X] Flag einführen in .env file für Wahl von LLM
   - [X] Diese flag verwenden in docker-compose.yml
+- [ ] Add opensource LLM from ETH
 - [ ] Implementierung von RAG-Support für beide LLM-Modelle
   - [ ] Update Art des Berichtes
 
