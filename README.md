@@ -185,9 +185,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [X] Weiteres open-source LLM einbinden wie (MedMT5 oder Meditron 7B)
-- [ ] Hinzufügen von Auswahloptionen wie:
-  - [ ] Sprachlich überarbeiten
-  - [ ] Art des Berichtes (Dropdown menu)
+- [X] Hinzufügen von Auswahloptionen wie:
+  - [X] Sprachlich überarbeiten
+  - [X] Art des Berichtes (Dropdown menu)
+- [ ] Streamlit skript überarbeiten sodass nur 1 aktives LLM vorhanden
 - [ ] Implementierung von RAG-Support für beide LLM-Modelle
   - [ ] Update Art des Berichtes
 
