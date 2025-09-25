@@ -13,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # === zentrale Modellkonfiguration ===
 API_MISTRAL  = os.getenv("API_BASE_URL_MISTRAL",  "http://mistral-inference:8100")
 API_MEDITRON = os.getenv("API_BASE_URL_MEDITRON", "http://meditron-inference:8200")
+MODEL_NAME = os.getenv("STREAMLIT_MODEL_SELECT", "Mistral7B")
 
 # Requests-Session ohne Proxy (wichtig gegen BlueCoat)
 session = requests.Session()
@@ -28,7 +29,6 @@ LLM_MODELS = {
         'api_url': f'{API_MEDITRON}/generate'
     }
 }
-
 
 # === Logging Setup ===
 LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
@@ -150,7 +150,7 @@ class Webber:
         #     st.warning("Bitte wähle ein LLM-Modell.")
         #     return
 
-        api_url = LLM_MODELS[selected_model]['api_url']
+        api_url = LLM_MODELS[MODEL_NAME]['api_url']
 
         bericht_typ = st.session_state.get('bericht_typ', '')
         korrigieren = st.session_state.get('korrigieren', False)
