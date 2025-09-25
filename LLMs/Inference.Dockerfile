@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.6
-
+ARG DOCKER_INFERENCE=mistral
 # ---------- Base ----------
 FROM python:3.11-slim AS base
 
@@ -8,6 +8,7 @@ ARG USE_PROXY=false
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG NO_PROXY
+
 
 # --- Logging (Build-Arg → ENV) ---
 ARG LOG_DIR=/var/log/llm
@@ -102,5 +103,4 @@ EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT}"]
 
 # ---------- Final: pick target by name ----------
-ARG DOCKER_INFERENCE=mistral
 FROM ${DOCKER_INFERENCE} AS final
