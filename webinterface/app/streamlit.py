@@ -62,8 +62,6 @@ class Webber:
             </style>
         """, unsafe_allow_html=True)
 
-        self.docker_client = docker.from_env()
-
 
     def get_available_berichtstypen(self):
         try:
