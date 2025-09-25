@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: LLMs/Inference.Dockerfile
-      target: ${DOCKER_INFERENCE}
       args:
         DOCKER_INFERENCE: ${DOCKER_INFERENCE}
         USE_PROXY: ${USE_PROXY}
@@ -16,8 +15,8 @@ services:
       - "8100:8100"
     restart: "no"
     volumes:
-      - ./LLMs/Mistral7B:/app/Mistral7B
-      - ./LLMs/Meditron7B:/app/Meditron7B
+      - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
+      - ./LLMs/Meditron7B/model:/app/model
     gpus: all
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
