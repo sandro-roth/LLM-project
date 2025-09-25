@@ -48,8 +48,7 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
       - API_BASE_URL=${API_BASE_URL}
       - DOCKER_INFERENCE=${DOCKER_INFERENCE}
-    depends_on:
-      - mistral-inference
+
     # === Limits (hinzugefügt) ===
     cpus: "2"
     mem_limit: "2g"
