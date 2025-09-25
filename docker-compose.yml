@@ -57,31 +57,3 @@ services:
     pids_limit: 512
     ulimits:
       nofile: 8192
-
-  meditron-inference:
-    build:
-      context: .
-      dockerfile: LLMs/Meditron7B/Dockerfile
-      args:
-        USE_PROXY: ${USE_PROXY}
-        HTTP_PROXY: ${HTTP_PROXY}
-        HTTPS_PROXY: ${HTTPS_PROXY}
-        NO_PROXY: ${NO_PROXY}
-        LOG_DIR: ${LOG_DIR}
-    container_name: meditron-inference-app
-    ports:
-      - "8200:8200"
-    restart: "no"
-    volumes:
-      - ./LLMs/Meditron7B/model:/app/model
-    gpus: all
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=0
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    # === Limits (hinzugefügt) ===
-    cpus: "8"
-    mem_limit: "32g"
-    mem_reservation: "16g"
-    pids_limit: 2048
-    ulimits:
-      nofile: 65536
