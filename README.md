@@ -188,7 +188,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [X] Hinzufügen von Auswahloptionen wie:
   - [X] Sprachlich überarbeiten
   - [X] Art des Berichtes (Dropdown menu)
-- [ ] Streamlit skript überarbeiten sodass nur 1 aktives LLM vorhanden
+- [X] Projekt verändern, sodass nur 1 LLM verwendet wird
+  - [X] Flag einführen in .env file für Wahl von LLM
+  - [X] Diese flag verwenden in docker-compose.yml
 - [ ] Implementierung von RAG-Support für beide LLM-Modelle
   - [ ] Update Art des Berichtes
 
