@@ -46,8 +46,8 @@ services:
     environment:
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_SERVER_HEADLESS=true
-      - API_BASE_URL_MISTRAL=${API_BASE_URL_MISTRAL}
-      - API_BASE_URL_MEDITRON=${API_BASE_URL_MEDITRON}
+      - API_BASE_URL=${API_BASE_URL}
+      - DOCKER_INFERENCE=${DOCKER_INFERENCE}
     depends_on:
       - mistral-inference
     # === Limits (hinzugefügt) ===
