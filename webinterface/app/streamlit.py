@@ -11,8 +11,7 @@ from utils import setup_logging
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # === zentrale Modellkonfiguration ===
-API_MISTRAL  = os.getenv("API_BASE_URL_MISTRAL",  "http://mistral-inference:8100")
-API_MEDITRON = os.getenv("API_BASE_URL_MEDITRON", "http://meditron-inference:8200")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://inference:8100")
 MODEL_NAME = os.getenv("STREAMLIT_MODEL_SELECT", "Mistral7B")
 
 # Requests-Session ohne Proxy (wichtig gegen BlueCoat)
@@ -22,11 +21,11 @@ session.trust_env = False
 LLM_MODELS = {
     'Mistral7B': {
         'container': 'mistral-inference-app',
-        'api_url': f'{API_MISTRAL}/generate'
+        'api_url': f'{API_BASE_URL}/generate'
     },
     'Meditron7B-Untrainiert': {
         'container': 'meditron-inference-app',
-        'api_url': f'{API_MEDITRON}/generate'
+        'api_url': f'{API_BASE_URL}/generate'
     }
 }
 
