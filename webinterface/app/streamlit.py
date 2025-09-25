@@ -98,34 +98,6 @@ class Webber:
             return ""
 
 
-    # def switch_llm(self, selected_model):
-    #     try:
-    #         if selected_model not in LLM_MODELS:
-    #             st.warning("Ungültiges Modell gewählt.")
-    #             return
-    #
-    #         selected_container = LLM_MODELS[selected_model]['container']
-    #
-    #         # Alle anderen Container stoppen
-    #         for name, model in LLM_MODELS.items():
-    #             container_name = model['container']
-    #             if container_name != selected_container:
-    #                 try:
-    #                     self.docker_client.containers.get(container_name).stop()
-    #                 except Exception as e:
-    #                     LOGGER.warning(f"Konnte Container {container_name} nicht stoppen: {e}")
-    #
-    #         # Gewählten Container starten
-    #         self.docker_client.containers.get(selected_container).start()
-    #         LOGGER.info(f"Container {selected_container} gestartet")
-    #
-    #         st.session_state['active_model'] = selected_model
-    #
-    #     except Exception as e:
-    #         LOGGER.error(f"Fehler beim Umschalten des Modells: {e}")
-    #         st.error(f"Container Error: {e}")
-
-
     def layout(self):
         row1 = st.container(height=self.container_height, border=False)
         self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
@@ -143,11 +115,6 @@ class Webber:
         if not text.strip():
             st.warning('Bitte gib mir Eckdaten für den Bericht:')
             return
-
-        # selected_model = st.session_state.get('active_model')
-        # if not selected_model or selected_model not in LLM_MODELS:
-        #     st.warning("Bitte wähle ein LLM-Modell.")
-        #     return
 
         api_url = LLM_MODELS[MODEL_NAME]['api_url']
 
@@ -204,18 +171,6 @@ class Webber:
                 st.write("")
 
 
-    # def LLM_selection(self):
-    #     with self.input3:
-    #         container = st.container()
-    #         with container:
-    #             self.add_vertical_space(container, lines=3)
-    #             st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    #             choice = st.radio('Modellwahl', list(LLM_MODELS.keys()), key='llm_choice')
-    #             st.markdown("</div>", unsafe_allow_html=True)
-    #             self.switch_llm(choice)
-    #             LOGGER.info(f"LLM-Auswahl: {choice}")
-
-
     def options_panel(self):
         with self.input2:
             container = st.container()
@@ -252,4 +207,3 @@ if __name__ == "__main__":
     page.intput_textfield()
     page.output_textfield()
     page.options_panel()
-    #page.LLM_selection()
