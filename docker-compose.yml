@@ -17,6 +17,7 @@ services:
     volumes:
       - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
       - ./LLMs/Meditron7B/model:/app/model
+      - ./LLMs/Apertus/base_model:/app/base_model
     gpus: all
     environment:
       - NVIDIA_VISIBLE_DEVICES=0

@@ -102,5 +102,8 @@ ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT}"]
 
+# ---------- Target: Apertus ----------
+
+
 # ---------- Final: pick target by name ----------
 FROM ${DOCKER_INFERENCE} AS final
