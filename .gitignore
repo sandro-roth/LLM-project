@@ -34,3 +34,4 @@ certs
 # Ingore model files
 model
 mistral-7B-Instruct-v0.3
+base_model
