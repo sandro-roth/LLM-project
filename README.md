@@ -146,21 +146,12 @@ Bevor du mit der Installation beginnst, stelle bitte sicher, dass folgende Punkt
    ```sh
    docker compose build --no-cache
    ```
-3. Erstelle nun die Container
+3. Erstelle nun die Container und lasse sie im Background laufen
    ```sh
-   docker compose up --no-start
+   docker compose up -d
    ```
-   
-#### Die Anwendung der Applikation erfolgt auf eigenes Risiko
-> ⚠️ **Hinweis:** Durch die Implementierung von Mehreren LLM's braucht der streamlit container
-> zugriff auf den Docker deamon. Somit hat dieser Container root rechte und sollte deshalb nur lokal
-> zu erreichen sein.
----
-4. Jetzt kann die Applikation gestartet werden mit
-   ```sh
-   docker compose start streamlit-web
-   ```
-5. Die Applikation lässt sich stoppen durch
+
+4. Die Applikation lässt sich stoppen durch
    ```sh
    docker compose down
    ```
