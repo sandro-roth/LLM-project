@@ -23,5 +23,24 @@ class ApertusInferenceLLM(LLM):
         })
 
     @timeit
-    def _call(self):
-        pass
+    def _call(self,prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
+        system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
+        messages = [
+            system_message,
+            {'role': 'user', 'content': prompt}
+        ]
+        inputs = self._tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors='pt'
+        ).to(self._model.device)
+
+        outputs = self._model.generate(**inputs, max_new_tokens=self._max_tokens)
+        # define stop
+        
+        return outputs
+
+    def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        self._call(prompt=prompt, system_prompt=system_prompt)
