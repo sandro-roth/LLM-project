@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from utils import timeit
 from utils import setup_logging
 
-setup_logging(app_name='apertus-inference', to_stdout=True, retention=30)
+LOGGER = setup_logging(app_name='apertus-inference', to_stdout=True, retention=30)
 
 class ApertusInferenceLLM(LLM):
     device = 'cuda'
@@ -38,10 +38,13 @@ class ApertusInferenceLLM(LLM):
             return_tensors='pt'
         ).to(self._model.device)
 
+        LOGGER.info(f'Sampling parameters: max_tokens = {self._max_tokens}, temperature = {self._temperature}, top_p = {self._top_p}')
         outputs = self._model.generate(**inputs,
                                        max_new_tokens=self._max_tokens,
                                        temperature=self._temperature,
                                        top_p=self._top_p)
+
+        # LOGGER.warning for stop condition
         # define stop
 
         return outputs
