@@ -10,11 +10,12 @@ from utils import setup_logging
 setup_logging(app_name='apertus-inference', to_stdout=True, retention=30)
 
 class ApertusInferenceLLM(LLM):
-    def __init__(self, model_path:str, tokenizer_path:str, temperatur:float, top_p:float, max_tokens:int):
+    device = 'cuda'
+    def __init__(self, model_path:str, tokenizer_path:str, temperature:float, top_p:float, max_tokens:int):
         super().__init__()
-        object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path))
+        object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path).to(self.device))
         object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path))
-        object.__setattr__(self, "_temperatur", temperatur)
+        object.__setattr__(self, "_temperature", temperature)
         object.__setattr__(self, "_top_p", top_p)
         object.__setattr__(self, "_max_tokens", max_tokens)
 
@@ -37,9 +38,12 @@ class ApertusInferenceLLM(LLM):
             return_tensors='pt'
         ).to(self._model.device)
 
-        outputs = self._model.generate(**inputs, max_new_tokens=self._max_tokens)
+        outputs = self._model.generate(**inputs,
+                                       max_new_tokens=self._max_tokens,
+                                       temperature=self._temperature,
+                                       top_p=self._top_p)
         # define stop
-        
+
         return outputs
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
