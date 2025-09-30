@@ -1,4 +1,5 @@
 from typing import Optional, List
+from pathlib import Path
 
 from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -11,10 +12,10 @@ LOGGER = setup_logging(app_name='apertus-inference', to_stdout=True, retention=3
 
 class ApertusInferenceLLM(LLM):
     device = 'cuda'
-    def __init__(self, model_path:str, tokenizer_path:str, temperature:float, top_p:float, max_tokens:int):
+    def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float, top_p:float, max_tokens:int):
         super().__init__()
-        object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path).to(self.device))
-        object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path))
+        object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
+        object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True))
         object.__setattr__(self, "_temperature", temperature)
         object.__setattr__(self, "_top_p", top_p)
         object.__setattr__(self, "_max_tokens", max_tokens)
