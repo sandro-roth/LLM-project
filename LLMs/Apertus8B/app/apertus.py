@@ -51,7 +51,10 @@ class ApertusInferenceLLM(LLM):
         # LOGGER.warning for stop condition
         # define stop
 
-        return outputs
+        LOGGER.info(f'This is the current outputs {outputs}/n'
+                    f'remove this code after setting the correct output')
+        decoded_output = self._tokenizer.decode(outputs[0][inputs["inputs_ids"].shape[-1]:])
+        return decoded_output
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         self._call(prompt=prompt, system_prompt=system_prompt)
