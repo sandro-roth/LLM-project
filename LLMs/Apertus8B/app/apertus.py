@@ -23,6 +23,10 @@ class ApertusInferenceLLM(LLM):
             'role': 'system', 'content':'Du bist ein präziser, detailorientierter medizinischer Schreibassistent.'
         })
 
+    @property
+    def _llm_type(self) -> str:
+        return 'apertus-inference'
+
     @timeit
     def _call(self,prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
         system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
