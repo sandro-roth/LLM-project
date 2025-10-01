@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, ClassVar
 from pathlib import Path
 
 from langchain_core.language_models import LLM
@@ -11,7 +11,7 @@ from utils import setup_logging
 LOGGER = setup_logging(app_name='apertus-inference', to_stdout=True, retention=30)
 
 class ApertusInferenceLLM(LLM):
-    device = 'cuda'
+    device: ClassVar[str] = 'cuda'
     def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float, top_p:float, max_tokens:int):
         super().__init__()
         object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
@@ -52,10 +52,10 @@ class ApertusInferenceLLM(LLM):
         # LOGGER.warning for stop condition
         # define stop
 
-        LOGGER.info(f'This is the current outputs {outputs}/n'
-                    f'remove this code after setting the correct output')
-        decoded_output = self._tokenizer.decode(outputs[0][inputs["inputs_ids"].shape[-1]:])
+
+        #decoded_output = self._tokenizer.decode(outputs[0][inputs["inputs_ids"].shape[-1]:])
+        decoded_output = outputs[0][len(inputs.input_ids[0]):]
         return decoded_output
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
-        self._call(prompt=prompt, system_prompt=system_prompt)
+        return self._call(prompt=prompt, system_prompt=system_prompt)
