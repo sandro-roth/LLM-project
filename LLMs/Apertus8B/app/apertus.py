@@ -54,14 +54,15 @@ class ApertusInferenceLLM(LLM):
                                            do_sample=do_sample,
                                            pad_token_id=self._tokenizer.eos_token_id)
 
-        
+
+        # only newly generated tokens
+        input_len = inputs.input_ids.shape[-1]
+        new_tokens = outputs[0][input_len:]
 
         # LOGGER.warning for stop condition
         # define stop
 
-
-        #decoded_output = self._tokenizer.decode(outputs[0][inputs["inputs_ids"].shape[-1]:])
-        decoded_output = outputs[0][len(inputs.input_ids[0]):]
+        decoded_output = self._tokenizer.decode(new_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)
         return decoded_output
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
