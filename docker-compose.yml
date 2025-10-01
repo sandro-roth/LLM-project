@@ -20,7 +20,7 @@ services:
       - ./LLMs/Apertus8B/base_model:/app/base_model
     gpus: all
     environment:
-      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     # === Limits (hinzugefügt) ===
     cpus: "8"
