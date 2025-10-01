@@ -104,7 +104,7 @@ CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT}"]
 
 
 # ---------- Target: Apertus ----------
-FROM base AS mistral
+FROM base AS apertus
 # service specific logs
 RUN mkdir -p "$LOG_DIR/apertus-inference" && chmod -R 777 "$LOG_DIR/apertus-inference"
 
