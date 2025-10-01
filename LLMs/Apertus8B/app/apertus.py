@@ -44,10 +44,13 @@ class ApertusInferenceLLM(LLM):
         ).to(self._model.device)
 
         LOGGER.info(f'Sampling parameters: max_tokens = {self._max_tokens}, temperature = {self._temperature}, top_p = {self._top_p}')
+        do_sample = self._temperatur > 0.0
         outputs = self._model.generate(**inputs,
                                        max_new_tokens=self._max_tokens,
                                        temperature=self._temperature,
-                                       top_p=self._top_p)
+                                       top_p=self._top_p,
+                                       do_sample=do_sample,
+                                       pad_token_id=self._tokenizer.eos_token_id)
 
         # LOGGER.warning for stop condition
         # define stop
