@@ -26,6 +26,10 @@ LLM_MODELS = {
     'Meditron7B-Untrainiert': {
         'container': 'meditron-inference-app',
         'api_url': f'{API_BASE_URL}/generate'
+    },
+    'Apertus8B': {
+        'container': 'apertus-inference-app',
+        'api_url': f'{API_BASE_URL}/generate'
     }
 }
 
