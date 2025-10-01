@@ -3,6 +3,7 @@ from pathlib import Path
 
 from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 
 
 from utils import timeit
@@ -45,12 +46,15 @@ class ApertusInferenceLLM(LLM):
 
         LOGGER.info(f'Sampling parameters: max_tokens = {self._max_tokens}, temperature = {self._temperature}, top_p = {self._top_p}')
         do_sample = self._temperatur > 0.0
-        outputs = self._model.generate(**inputs,
-                                       max_new_tokens=self._max_tokens,
-                                       temperature=self._temperature,
-                                       top_p=self._top_p,
-                                       do_sample=do_sample,
-                                       pad_token_id=self._tokenizer.eos_token_id)
+        with torch.no_grad():
+            outputs = self._model.generate(**inputs,
+                                           max_new_tokens=self._max_tokens,
+                                           temperature=self._temperature,
+                                           top_p=self._top_p,
+                                           do_sample=do_sample,
+                                           pad_token_id=self._tokenizer.eos_token_id)
+
+        
 
         # LOGGER.warning for stop condition
         # define stop
