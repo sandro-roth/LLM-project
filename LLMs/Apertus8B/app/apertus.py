@@ -1,9 +1,10 @@
-from typing import Optional, List, ClassVar
+from typing import Optional, List, ClassVar, Iterator
 from pathlib import Path
 
 from langchain_core.language_models import LLM
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 import torch
+import threading
 
 
 from utils import timeit
@@ -52,7 +53,8 @@ class ApertusInferenceLLM(LLM):
                                            temperature=self._temperature,
                                            top_p=self._top_p,
                                            do_sample=do_sample,
-                                           pad_token_id=self._tokenizer.eos_token_id)
+                                           pad_token_id=self._tokenizer.eos_token_id,
+                                           eos_token_id=self._tokenizer.eos_token_id)
 
 
         # only newly generated tokens
@@ -67,3 +69,58 @@ class ApertusInferenceLLM(LLM):
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         return self._call(prompt=prompt, system_prompt=system_prompt)
+
+    def stream(self, prompt: str, system_prompt: Optional[str] = None) -> Iterator[str]:
+        """
+        Gibt inkrementell Textstücke zurück (Token/Chunks), sobald sie generiert werden.
+        Verwendet HuggingFace TextIteratorStreamer.
+        """
+        system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
+        messages = [
+            system_message,
+            {'role': 'user', 'content': prompt}
+        ]
+        inputs = self._tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors='pt'
+        ).to(self._model.device)
+
+        # Streamer: prompt wird nicht wiederholt, Sondersymbole werden übersprungen
+        streamer = TextIteratorStreamer(
+            self._tokenizer,
+            skip_prompt=True,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False
+        )
+
+        do_sample = self._temperature > 0.0
+        generate_kwargs = dict(
+            **inputs,
+            max_new_tokens=self._max_tokens,
+            temperature=self._temperature,
+            top_p=self._top_p,
+            do_sample=do_sample,
+            pad_token_id=self._tokenizer.eos_token_id,
+            eos_token_id=self._tokenizer.eos_token_id,
+            streamer=streamer
+        )
+
+        # generate in separatem Thread starten; Haupt-Thread liest aus streamer
+        def _worker():
+            with torch.no_grad():
+                self._model.generate(**generate_kwargs)
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+
+        try:
+            for text in streamer:
+                # text kann 1+ Token enthalten; gib es direkt weiter
+                if text:
+                    yield text
+        finally:
+            # Aufräumen/Join ist optional (Streamer beendet sich)
+            t.join(timeout=0.1)
