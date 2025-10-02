@@ -43,7 +43,8 @@ def generate_text_stream(request: PromptRequest):
     def token_generator() -> Generator[bytes, None, None]:
         try:
             for tok in llm.stream(prompt=request.prompt, system_prompt=request.system_prompt):
-                yield sse_event({"token": tok}).encode("utf-8")
+                if tok:
+                    yield sse_event({"token": tok}).encode("utf-8")
             yield sse_event({"finished": True}).encode("utf-8")
         except GeneratorExit:
             return
