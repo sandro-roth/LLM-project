@@ -149,7 +149,7 @@ class Webber:
         self.output_placeholder = self.input1.empty()
 
 
-    def input_textfield(self):
+    def textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
         submit = self.input.form_submit_button('Generieren ...')
 
@@ -220,20 +220,6 @@ class Webber:
             st.error(f'Connection error: {e}')
 
 
-    def output_textfield(self):
-        output_text = st.session_state.get('output_text', '')
-        LOGGER.info(f'Der Ausgabe text hat eine Länge von {len(output_text)}')
-        st.text_area('Das ist dein Report:', value=output_text, height=self.input_text_height, disabled=True)
-
-        if output_text:
-            st.download_button(
-                label='Download',
-                data=output_text,
-                file_name='report.txt',
-                mime='text/plain'
-            )
-
-
     def add_vertical_space(self, container, lines):
         for _ in range(lines):
             with container:
@@ -273,6 +259,5 @@ class Webber:
 if __name__ == "__main__":
     page = Webber()
     page.layout()
-    page.input_textfield()
-    #page.output_textfield()
+    page.textfield()
     page.options_panel()
