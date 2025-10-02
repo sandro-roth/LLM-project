@@ -45,7 +45,7 @@ class ApertusInferenceLLM(LLM):
         ).to(self._model.device)
 
         LOGGER.info(f'Sampling parameters: max_tokens = {self._max_tokens}, temperature = {self._temperature}, top_p = {self._top_p}')
-        do_sample = self._temperatur > 0.0
+        do_sample = self._temperature > 0.0
         with torch.no_grad():
             outputs = self._model.generate(**inputs,
                                            max_new_tokens=self._max_tokens,
