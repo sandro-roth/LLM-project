@@ -273,6 +273,6 @@ class Webber:
 if __name__ == "__main__":
     page = Webber()
     page.layout()
-    page.intput_textfield()
+    page.input_textfield()
     #page.output_textfield()
     page.options_panel()
