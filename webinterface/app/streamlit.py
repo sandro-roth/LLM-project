@@ -1,5 +1,6 @@
 import requests
 import os
+import json
 
 import streamlit as st
 import docker
@@ -35,6 +36,46 @@ LLM_MODELS = {
 
 # === Logging Setup ===
 LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
+
+def stream_llm_response(api_url: str, payload: dict):
+    with session.post(api_url, json=payload, stream=True, timeout=300) as r:
+        r.raise_for_status()
+        for raw_line in r.iter_lines(decode_unicode=True, chunk_size=1):
+            if not raw_line:
+                continue
+            line = raw_line.strip()
+
+            # 1) Server-Sent Events: "data: {...}"
+            if line.startswith("data:"):
+                data_str = line[5:].strip()
+                try:
+                    obj = json.loads(data_str)
+                    token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
+                except json.JSONDecodeError:
+                    token = data_str
+                if token:
+                    yield token
+                continue
+
+            # 2) JSONL: {"token": "..."} pro Zeile
+            if line.startswith("{") and line.endswith("}"):
+                try:
+                    obj = json.loads(line)
+                    token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
+                except json.JSONDecodeError:
+                    token = line
+                if token:
+                    yield token
+                continue
+
+def write_stream_generator(api_url: str, payload: dict):
+    """
+    Generator, der mit st.write_stream kompatibel ist.
+    Gibt die empfangenen Chunks weiter.
+    """
+    for chunk in stream_llm_response(api_url, payload):
+        yield chunk
+
 
 class Webber:
     container_height = 380
@@ -119,7 +160,6 @@ class Webber:
             return
 
         api_url = LLM_MODELS[MODEL_NAME]['api_url']
-
         bericht_typ = st.session_state.get('bericht_typ', '')
         korrigieren = st.session_state.get('korrigieren', False)
 
@@ -132,22 +172,37 @@ class Webber:
             return
 
         user_input = text.strip()
+        payload = {'prompt': user_input, 'system_prompt': system_message}
 
         try:
-            response = session.post(
-              api_url,
-              json={'prompt': user_input, 'system_prompt': system_message},
-              timeout=60)
+            st.session_state['output_text'] = ""
+            with self.input1:
+                st.markdown("**Antwort (live):**")
+                try:
+                    # Streaming
+                    final_text = st.write_stream(write_stream_generator(api_url, payload)) or ""
+                except requests.HTTPError as e:
+                    LOGGER.warning(f"Streaming HTTPError, fallback auf Non-Streaming: {e}")
+                    final_text = ""
 
-            LOGGER.info(f'API Antwort erhalten mit status code {response.status_code}')
-            if response.status_code == 200:
-                result = response.json().get("response", "")
-                if isinstance(result, list):
-                    result = "\n".join(str(item) for item in result)
-                st.session_state['output_text'] = result
-            else:
-                st.error(f'API Error: {response.status_code} - {response.text}')
-                LOGGER.error(f"API Error: {response.status_code} - {response.text}")
+            # Fallback wenn kein Streaming kam → hole finale Antwort
+            if not final_text:
+                resp = session.post(api_url, json=payload, timeout=120)
+                if resp.status_code == 200:
+                    result = resp.json().get("response", "")
+                    if isinstance(result, list):
+                        result = "\n".join(str(item) for item in result)
+                    final_text = str(result)
+                else:
+                    st.error(f'API Error: {resp.status_code} - {resp.text}')
+                    LOGGER.error(f"API Error: {resp.status_code} - {resp.text}")
+                    return
+
+            st.session_state['output_text'] = final_text
+
+        except requests.HTTPError as e:
+            LOGGER.error(f'HTTP Fehler während API Aufruf: {e}')
+            st.error(f'HTTP error: {e}')
         except Exception as e:
             LOGGER.error(f'Fehler während API Aufruf: {e}')
             st.error(f'Connection error: {e}')
