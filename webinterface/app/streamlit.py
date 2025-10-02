@@ -146,12 +146,19 @@ class Webber:
         self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
 
+        self.output_placeholder = self.input1.empty()
+
 
     def intput_textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
         submit = self.input.form_submit_button('Generieren ...')
 
         if not submit:
+            if 'output_text' not in st.session_state:
+                st.session_state['output_text'] = ""
+            with self.output_placeholder.container():
+                st.text_area('Report:', value=st.session_state['output_text'],
+                             height=self.input_text_height, disabled=True, key="report_view")
             return
 
         LOGGER.info('Generieren Knopf gedrückt')
@@ -171,38 +178,43 @@ class Webber:
             st.warning("Bitte wähle entweder 'Korrigieren' oder einen gültigen Berichtstyp.")
             return
 
-        user_input = text.strip()
-        payload = {'prompt': user_input, 'system_prompt': system_message}
+        payload = {'prompt': text.strip(), 'system_prompt': system_message}
+        st.session_state['output_text'] = ""
 
         try:
-            st.session_state['output_text'] = ""
-            with self.input1:
-                st.markdown("**Antwort (live):**")
-                try:
-                    # Streaming
-                    final_text = st.write_stream(write_stream_generator(api_url, payload)) or ""
-                except requests.HTTPError as e:
-                    LOGGER.warning(f"Streaming HTTPError, fallback auf Non-Streaming: {e}")
-                    final_text = ""
+            with self.output_placeholder.container():
+                out = st.empty()
+                out.text_area('Report:', value="", height=self.input_text_height,
+                              disabled=True, key="report_view")
 
-            # Fallback wenn kein Streaming kam → hole finale Antwort
-            if not final_text:
-                resp = session.post(api_url, json=payload, timeout=120)
-                if resp.status_code == 200:
-                    result = resp.json().get("response", "")
-                    if isinstance(result, list):
-                        result = "\n".join(str(item) for item in result)
-                    final_text = str(result)
+                # wenn api_url auf /generate_stream zeigt → stream_llm_response verwenden
+                if api_url.endswith("/generate_stream"):
+                    for chunk in stream_llm_response(api_url, payload):
+                        st.session_state['output_text'] += chunk
+                        out.text_area('Report:', value=st.session_state['output_text'],
+                                      height=self.input_text_height, disabled=True, key="report_view")
                 else:
-                    st.error(f'API Error: {resp.status_code} - {resp.text}')
-                    LOGGER.error(f"API Error: {resp.status_code} - {resp.text}")
-                    return
+                    # klassischer Non-Streaming Call
+                    resp = session.post(api_url, json=payload, timeout=120)
+                    if resp.status_code == 200:
+                        result = resp.json().get("response", "")
+                        if isinstance(result, list):
+                            result = "\n".join(str(item) for item in result)
+                        st.session_state['output_text'] = str(result)
+                        out.text_area('Report:', value=st.session_state['output_text'],
+                                      height=self.input_text_height, disabled=True, key="report_view")
+                    else:
+                        st.error(f'API Error: {resp.status_code} - {resp.text}')
+                        return
 
-            st.session_state['output_text'] = final_text
+                # Download-Button unter das EINZIGE Feld
+                st.download_button(
+                    label='Download',
+                    data=st.session_state['output_text'],
+                    file_name='report.txt',
+                    mime='text/plain'
+                )
 
-        except requests.HTTPError as e:
-            LOGGER.error(f'HTTP Fehler während API Aufruf: {e}')
-            st.error(f'HTTP error: {e}')
         except Exception as e:
             LOGGER.error(f'Fehler während API Aufruf: {e}')
             st.error(f'Connection error: {e}')
@@ -262,5 +274,5 @@ if __name__ == "__main__":
     page = Webber()
     page.layout()
     page.intput_textfield()
-    page.output_textfield()
+    #page.output_textfield()
     page.options_panel()
