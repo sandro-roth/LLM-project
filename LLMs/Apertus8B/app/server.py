@@ -51,12 +51,12 @@ def generate_text_stream(request: PromptRequest):
         except Exception as e:
             yield sse_event({"error": str(e)}).encode("utf-8")
 
-        return StreamingResponse(
-            token_generator(),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
-            },
-        )
+    return StreamingResponse(
+        token_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
