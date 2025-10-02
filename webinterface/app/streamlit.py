@@ -30,7 +30,7 @@ LLM_MODELS = {
     },
     'Apertus8B': {
         'container': 'apertus-inference-app',
-        'api_url': f'{API_BASE_URL}/generate'
+        'api_url': f'{API_BASE_URL}/generate_stream'
     }
 }
 
