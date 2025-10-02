@@ -149,7 +149,7 @@ class Webber:
         self.output_placeholder = self.input1.empty()
 
 
-    def intput_textfield(self):
+    def input_textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
         submit = self.input.form_submit_button('Generieren ...')
 
@@ -158,7 +158,7 @@ class Webber:
                 st.session_state['output_text'] = ""
             with self.output_placeholder.container():
                 st.text_area('Report:', value=st.session_state['output_text'],
-                             height=self.input_text_height, disabled=True, key="report_view")
+                             height=self.input_text_height, disabled=True)
             return
 
         LOGGER.info('Generieren Knopf gedrückt')
@@ -182,17 +182,17 @@ class Webber:
         st.session_state['output_text'] = ""
 
         try:
+            self.output_placeholder.empty()
             with self.output_placeholder.container():
                 out = st.empty()
-                out.text_area('Report:', value="", height=self.input_text_height,
-                              disabled=True, key="report_view")
+                out.text_area('Report:', value="", height=self.input_text_height, disabled=True)
 
                 # wenn api_url auf /generate_stream zeigt → stream_llm_response verwenden
                 if api_url.endswith("/generate_stream"):
                     for chunk in stream_llm_response(api_url, payload):
                         st.session_state['output_text'] += chunk
                         out.text_area('Report:', value=st.session_state['output_text'],
-                                      height=self.input_text_height, disabled=True, key="report_view")
+                                      height=self.input_text_height, disabled=True)
                 else:
                     # klassischer Non-Streaming Call
                     resp = session.post(api_url, json=payload, timeout=120)
