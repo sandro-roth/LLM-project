@@ -254,19 +254,28 @@ class Webber:
             st.markdown("**Report (live):**")
             # write_stream rendert live und gibt am Ende den zusammengesetzten String zurück
             final_text = st.write_stream(stream_llm_response(api_url, payload))
-            # final_text, yielded_any = write_stream_with_accumulator((chunk for chunk in stream_llm_response(api_url, payload)))
 
         # 2) Falls Non-Streaming-Endpoint: finale Antwort holen
-        if not final_text:
-            final_text=""
-        #if not yielded_any or final_text is None or final_text == "":
-            #LOGGER.info('Livestreaming nicht möglich')
-            #resp = session.post(api_url, json=payload, timeout=120)
-            #if resp.status_code != 200:
-            #    st.error(f'API Error: {resp.status_code} - {resp.text}')
-            #    return
-            #result = resp.json().get("response", "")
-            #final_text = "\n".join(result) if isinstance(result, list) else str(result)
+        if not final_text or not str(final_text).strip():
+            LOGGER.info('Keine Stream-Output erhalten – Fallback auf /generate')
+            if api_url.endswith("/generate_stream"):
+                fallback_url = api_url[:-len("/generate_stream")] + "/generate"
+            else:
+                fallback_url = api_url
+
+            try:
+                with st.spinner("Hole finale Antwort..."):
+                    resp = session.post(fallback_url, json=payload, timeout=120)
+                if resp.status_code != 200:
+                    st.error(f'API Error: {resp.status_code} - {resp.text}')
+                    final_text = ""
+                else:
+                    result = resp.json().get("response", "")
+                    final_text = "\n".join(result) if isinstance(result, list) else str(result)
+            except Exception as e:
+                st.error(f'Fallback fehlgeschlagen: {e}')
+                final_text = ""
+
 
         # 3) Dauerhafte Darstellung: denselben Platzhalter leeren und EIN text_area setzen
         st.session_state['output_text'] = final_text
