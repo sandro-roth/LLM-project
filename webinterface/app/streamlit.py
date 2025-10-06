@@ -38,35 +38,75 @@ LLM_MODELS = {
 LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
 
 def stream_llm_response(api_url: str, payload: dict):
-    with session.post(api_url, json=payload, stream=True, timeout=300) as r:
+    with session.post(api_url, json=payload, stream=True, timeout=300,
+                      headers={"Accept": "text/event-stream", "Cache_control": "no-cache"}) as r:
         r.raise_for_status()
+        LOGGER.info(f"SSE CT={r.headers.get('Content-Type')} from {api_url}")
+
         for raw_line in r.iter_lines(decode_unicode=True, chunk_size=1):
-            if not raw_line:
+            if raw_line is None:
                 continue
             line = raw_line.strip()
+
+            # Only for debug few lines in log
+            if line:
+                LOGGER.debug(f"SSE LINE: {line[:120]}")
+            if not line:
+                continue
+
+            if line.startswith(":"):
+                continue
+
 
             # 1) Server-Sent Events: "data: {...}"
             if line.startswith("data:"):
                 data_str = line[5:].strip()
                 try:
                     obj = json.loads(data_str)
-                    token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
                 except json.JSONDecodeError:
-                    token = data_str
+                    if data_str:
+                        yield data_str
+                    continue
+
+                if obj.get("finished") is True:
+                    break
+                if obj.get("error"):
+                    yield f"\n[Server-Error] {obj['error']}\n"
+                    continue
+
+                token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
                 if token:
                     yield token
                 continue
+
 
             # 2) JSONL: {"token": "..."} pro Zeile
             if line.startswith("{") and line.endswith("}"):
                 try:
                     obj = json.loads(line)
-                    token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
                 except json.JSONDecodeError:
-                    token = line
+                    yield line
+                    continue
+
+                if obj.get("finished") is True:
+                    break
+
+                # Falls versehentlich Non-Streaming-JSON kam:
+                if "response" in obj:
+                    text = obj["response"]
+                    if isinstance(text, list):
+                        text = "\n".join(text)
+                    if text:
+                        yield text
+                    break
+
+                token = obj.get("token") or obj.get("delta") or obj.get("content") or ""
                 if token:
                     yield token
                 continue
+
+                # Plain-Text-Fallback
+            yield line
 
 def write_stream_generator(api_url: str, payload: dict):
     """
@@ -75,6 +115,34 @@ def write_stream_generator(api_url: str, payload: dict):
     """
     for chunk in stream_llm_response(api_url, payload):
         yield chunk
+
+def write_stream_with_accumulator(gen):
+    acc = []
+    yielded_any = False
+
+    def _coerce_chunks():
+        nonlocal yielded_any
+        first = True
+        for x in gen:
+            if isinstance(x, str):
+                s = x
+            elif isinstance(x, dict):
+                s = x.get("token") or x.get("delta") or x.get("content") or json.dumps(x, ensure_ascii=False)
+            else:
+                s = str(x)
+
+            if first and (s is None or s == ""):
+                s = " "
+            first = False
+
+            acc.append(s)
+            yielded_any = True
+            yield s
+
+    # streamen + live rendern
+    result = st.write_stream(_coerce_chunks())
+    final_text = result if isinstance(result, str) else "".join(acc)
+    return final_text, yielded_any
 
 
 class Webber:
@@ -179,45 +247,38 @@ class Webber:
             return
 
         payload = {'prompt': text.strip(), 'system_prompt': system_message}
-        st.session_state['output_text'] = ""
 
-        try:
-            self.output_placeholder.empty()
-            with self.output_placeholder.container():
-                out = st.empty()
-                out.text_area('Report:', value="", height=self.input_text_height, disabled=True)
+        # 1) Live anzeigen mit write_stream (Markdown), **ein** Platzhalter
+        LOGGER.info('Livestreaming gestartet')
+        with self.output_placeholder.container():
+            st.markdown("**Report (live):**")
+            # write_stream rendert live und gibt am Ende den zusammengesetzten String zurück
+            final_text = st.write_stream(stream_llm_response(api_url, payload))
+            # final_text, yielded_any = write_stream_with_accumulator((chunk for chunk in stream_llm_response(api_url, payload)))
 
-                # wenn api_url auf /generate_stream zeigt → stream_llm_response verwenden
-                if api_url.endswith("/generate_stream"):
-                    for chunk in stream_llm_response(api_url, payload):
-                        st.session_state['output_text'] += chunk
-                        out.text_area('Report:', value=st.session_state['output_text'],
-                                      height=self.input_text_height, disabled=True)
-                else:
-                    # klassischer Non-Streaming Call
-                    resp = session.post(api_url, json=payload, timeout=120)
-                    if resp.status_code == 200:
-                        result = resp.json().get("response", "")
-                        if isinstance(result, list):
-                            result = "\n".join(str(item) for item in result)
-                        st.session_state['output_text'] = str(result)
-                        out.text_area('Report:', value=st.session_state['output_text'],
-                                      height=self.input_text_height, disabled=True, key="report_view")
-                    else:
-                        st.error(f'API Error: {resp.status_code} - {resp.text}')
-                        return
+        # 2) Falls Non-Streaming-Endpoint: finale Antwort holen
+        if not final_text:
+            final_text=""
+        #if not yielded_any or final_text is None or final_text == "":
+            #LOGGER.info('Livestreaming nicht möglich')
+            #resp = session.post(api_url, json=payload, timeout=120)
+            #if resp.status_code != 200:
+            #    st.error(f'API Error: {resp.status_code} - {resp.text}')
+            #    return
+            #result = resp.json().get("response", "")
+            #final_text = "\n".join(result) if isinstance(result, list) else str(result)
 
-                # Download-Button unter das EINZIGE Feld
-                st.download_button(
-                    label='Download',
-                    data=st.session_state['output_text'],
-                    file_name='report.txt',
-                    mime='text/plain'
-                )
-
-        except Exception as e:
-            LOGGER.error(f'Fehler während API Aufruf: {e}')
-            st.error(f'Connection error: {e}')
+        # 3) Dauerhafte Darstellung: denselben Platzhalter leeren und EIN text_area setzen
+        st.session_state['output_text'] = final_text
+        self.output_placeholder.empty()
+        with self.output_placeholder.container():
+            st.text_area('Report:', value=final_text, height=self.input_text_height, disabled=True)
+            st.download_button(
+                label='Download',
+                data=final_text,
+                file_name='report.txt',
+                mime='text/plain'
+            )
 
 
     def add_vertical_space(self, container, lines):
