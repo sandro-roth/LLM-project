@@ -48,6 +48,7 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
       - API_BASE_URL=${API_BASE_URL}
       - DOCKER_INFERENCE=${DOCKER_INFERENCE}
+      - STREAMLIT_MODEL_SELECT=${STREAMLIT_MODEL_SELECT}
 
     # === Limits (hinzugefügt) ===
     cpus: "2"
