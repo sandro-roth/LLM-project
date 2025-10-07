@@ -65,7 +65,7 @@ class ApertusInferenceLLM(LLM):
     def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
             *, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]) -> Iterator[str]:
         temp, nucleus, max_new, do_sample = self._effective_params(temperature, top_p, max_tokens)
-        LOGGER.info(f"Sampling: max_new={max_new}, temperature={temp}, top_p={nucleus}")
+        LOGGER.info(f"Sampling: max_new_tokens={max_new}, temperature={temp}, top_p={nucleus}")
         inputs = self._build_inputs(prompt, system_prompt)
 
         streamer = TextIteratorStreamer(
