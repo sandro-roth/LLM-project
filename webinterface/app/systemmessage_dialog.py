@@ -1,4 +1,5 @@
 import streamlit as st
+from jinja2 import Template
 
 def render_systemmessage_dialog():
     st.markdown("""
@@ -33,11 +34,33 @@ def render_systemmessage_dialog():
         help="Eigene Systemmessage, überschreibt die Auswahl aus system_messages.yml."
     )
 
-    c1, c2 = st.columns(2)
-    if c1.button("Übernehmen", use_container_width=True, key="apply_sysmsg"):
+    c1, c2, c3 = st.columns(2)
+    if c1.button('Show', use_container_width=True, key='show_sysmsg'):
+        effective = None
+        effective = st.session_state.get('rendered_system_message')
+
+        if not effective:
+            effective = st.session_state.get('system_message_override')
+
+        if not effective:
+            tpl = st.sesseion_state.get('active_system_template')
+            ctx = st.sessions_state.get('active_system_context', {}) or {}
+            if tpl:
+                try:
+                    effective = Template(tpl).render(ctx)
+                except Exception:
+                    effective = tpl
+
+        # Fallback: leeren string
+        st.session_state['systemmessage_editor'] = effective or ""
+        st.toast('Aktueller Systemprompt geladen')
+        st.rerun()
+
+    if c2.button("Übernehmen", use_container_width=True, key="apply_sysmsg"):
         st.session_state["system_message_override"] = st.session_state.get("systemmessage_editor", "")
         st.success("Übernommen – wird beim nächsten Generieren verwendet.")
-    if c2.button("Zurücksetzen", use_container_width=True, key="reset_sysmsg"):
+
+    if c3.button("Zurücksetzen", use_container_width=True, key="reset_sysmsg"):
         st.session_state.pop("system_message_override", None)
         st.session_state.pop("systemmessage_editor", None)
         st.info("Zurückgesetzt – es wird wieder das YAML-Template genutzt.")
