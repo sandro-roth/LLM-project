@@ -109,39 +109,6 @@ def stream_llm_response(api_url: str, payload: dict):
                 # Plain-Text-Fallback
             yield line
 
-def write_stream_generator(api_url: str, payload: dict):
-    """
-    Generator, der mit st.write_stream kompatibel ist.
-    Gibt die empfangenen Chunks weiter.
-    """
-    for chunk in stream_llm_response(api_url, payload):
-        yield chunk
-
-
-    def _coerce_chunks():
-        nonlocal yielded_any
-        first = True
-        for x in gen:
-            if isinstance(x, str):
-                s = x
-            elif isinstance(x, dict):
-                s = x.get("token") or x.get("delta") or x.get("content") or json.dumps(x, ensure_ascii=False)
-            else:
-                s = str(x)
-
-            if first and (s is None or s == ""):
-                s = " "
-            first = False
-
-            acc.append(s)
-            yielded_any = True
-            yield s
-
-    # streamen + live rendern
-    result = st.write_stream(_coerce_chunks())
-    final_text = result if isinstance(result, str) else "".join(acc)
-    return final_text, yielded_any
-
 
 class Webber:
     container_height = "content"
