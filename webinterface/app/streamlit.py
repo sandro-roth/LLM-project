@@ -153,6 +153,8 @@ class Webber:
     input_text_height = 240
 
     def __init__(self):
+        if 'sysmsg_overrides' not in st.session_state:
+            st.session_state['sysmsg_overrides'] = {}
         LOGGER.info('Streamlit frontend gestartet')
         st.set_page_config(
             page_title="Medizinische Berichte",
