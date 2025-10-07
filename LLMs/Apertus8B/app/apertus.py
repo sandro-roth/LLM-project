@@ -111,40 +111,8 @@ class ApertusInferenceLLM(LLM):
 
 
     @timeit
-    def stream(self, prompt: str, system_prompt: Optional[str] = None) -> Iterator[str]:
-        """
-        Gibt inkrementell Textstücke zurück (Token/Chunks), sobald sie generiert werden.
-        Verwendet HuggingFace TextIteratorStreamer.
-        """
-        system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
-        messages = [
-            system_message,
-            {'role': 'user', 'content': prompt}
-        ]
-        inputs = self._tokenizer.apply_chat_template(
-            messages,
-            add_generation_prompt=True,
-            tokenize=True,
-            return_dict=True,
-            return_tensors='pt'
-        ).to(self._model.device)
-
-        # Streamer: prompt wird nicht wiederholt, Sondersymbole werden übersprungen
-        streamer = TextIteratorStreamer(
-            self._tokenizer,
-            skip_prompt=True,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False
-        )
-
-        do_sample = self._temperature > 0.0
-        generate_kwargs = dict(
-            **inputs,
-            max_new_tokens=self._max_tokens,
-            temperature=self._temperature,
-            top_p=self._top_p,
-            do_sample=do_sample,
-            pad_token_id=self._tokenizer.eos_token_id,
-            eos_token_id=self._tokenizer.eos_token_id,
-            streamer=streamer
+    def stream(self, prompt:str, system_prompt:Optional[str]=None,
+               *, temperature:Optional[float]=None, top_p:Optional[float]=None, max_tokens:Optional[int]=None) -> Iterator[str]:
+        yield from self._stream_chunks(
+            prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens
         )
