@@ -153,27 +153,31 @@ class Webber:
 
     def __init__(self):
         LOGGER.info('Streamlit frontend gestartet')
-        st.set_page_config(layout="wide")
-        st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLM's")
-
-        st.markdown("""
+        st.set_page_config(
+            page_title="Medizinische Berichte",
+            layout="wide",
+            initial_sidebar_state="collapsed"
+        )
+        st.markdown(
+            """
             <style>
-            label[data-baseweb="checkbox"] > div {
-                transform: scale(1.5);
-                transform-origin: left center;
-                margin-right: 10px;
-            }
+                /* Header/Menu/Footers schlank halten */
+                .block-container { padding-top: 0.8rem; padding-bottom: 0.2rem; }
+                header { visibility: hidden; height: 0; }
+                [data-testid="stToolbar"] { display: none !important; }
+                /* Spalten-Gap kleiner */
+                .css-ocqkz7, .st-emotion-cache-13k62yr { gap: 0.75rem !important; }
+                /* Textareas etwas eleganter */
+                textarea { line-height: 1.35; font-size: 0.95rem; }
+                /* Tabs straffer */
+                .stTabs [data-baseweb="tab-list"] { gap: 0.25rem; }
+                .stTabs [data-baseweb="tab"] { padding: 6px 10px; }
             </style>
-        """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
 
-        st.markdown("""
-            <style>
-            .block-container {
-                padding-top: 3rem;
-                padding-bottom: 1rem;
-            }
-            </style>
-        """, unsafe_allow_html=True)
+        st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLMs")
 
 
     def get_available_berichtstypen(self):
