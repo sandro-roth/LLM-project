@@ -88,38 +88,20 @@ class ApertusInferenceLLM(LLM):
 
 
     @timeit
-    def _call(self,prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
-        system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
-        messages = [
-            system_message,
-            {'role': 'user', 'content': prompt}
-        ]
-        inputs = self._tokenizer.apply_chat_template(
-            messages,
-            add_generation_prompt=True,
-            tokenize=True,
-            return_dict=True,
-            return_tensors='pt'
-        ).to(self._model.device)
+    def _call(
+        self, prompt:str, system_prompt:Optional[str]=None, stop:Optional[List[str]]=None,
+        *, temperature:Optional[float]=None, top_p:Optional[float]=None, max_tokens:Optional[int]=None
+    ) -> str:
 
-        LOGGER.info(f'Sampling parameters: max_tokens = {self._max_tokens}, temperature = {self._temperature}, top_p = {self._top_p}')
-        do_sample = self._temperature > 0.0
-        with torch.no_grad():
-            outputs = self._model.generate(**inputs,
-                                           max_new_tokens=self._max_tokens,
-                                           temperature=self._temperature,
-                                           top_p=self._top_p,
-                                           do_sample=do_sample,
-                                           pad_token_id=self._tokenizer.eos_token_id,
-                                           eos_token_id=self._tokenizer.eos_token_id)
+        # definiere stop Kriterium
 
-
-        # only newly generated tokens
-        input_len = inputs.input_ids.shape[-1]
-        new_tokens = outputs[0][input_len:]
-
-        decoded_output = self._tokenizer.decode(new_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-        return decoded_output
+        # nutze denselben Streamer unter der Haube, aber sammle die Chunks
+        parts = []
+        for chunk in self._stream_chunks(
+            prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens
+        ):
+            parts.append(chunk)
+        return "".join(parts)
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         return self._call(prompt=prompt, system_prompt=system_prompt)
