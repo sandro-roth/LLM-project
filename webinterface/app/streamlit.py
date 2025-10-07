@@ -229,30 +229,11 @@ class Webber:
                 if not active_key:
                     st.info("Bitte zuerst 'Korrigieren' ODER einen Berichtstyp wählen.")
                 else:
-                    overrides = st.session_state['sysmsg_overrides']
-                    # Editor-Key pro Typ, damit pro Berichtstyp eigener Editorzustand
-                    editor_key = f"systemmessage_editor__{active_key}"
-                    current_val = overrides.get(active_key, "")
-                    st.text_area(
-                        f"System Prompt für: {active_key}",
-                        key=editor_key,
-                        value=current_val,
-                        height=300,
-                        help="Überschreibt die YAML-Template-Nachricht nur für diesen Typ."
+                    # einheitliche Quelle: externes Modul rendert den Dialog
+                    render_systemmessage_dialog(
+                        active_key=active_key,
+                        get_effective_system_message=self.render_system_message
                     )
-
-                    c1, c2 = st.columns(2)
-                    # WICHTIG: innerhalb der Form -> form_submit_button benutzen
-                    save_clicked = c1.form_submit_button("Speichern", use_container_width=True)
-                    reset_clicked = c2.form_submit_button("Zurücksetzen", use_container_width=True)
-
-                    if save_clicked:
-                        st.session_state['sysmsg_overrides'][active_key] = st.session_state.get(editor_key, "").strip()
-                        st.success(f"Systemmessage für „{active_key}“ gespeichert.")
-                    if reset_clicked:
-                        st.session_state['sysmsg_overrides'].pop(active_key, None)
-                        st.session_state.pop(editor_key, None)
-                        st.info(f"Override für „{active_key}“ zurückgesetzt (YAML-Vorlage wird verwendet).")
 
         with b2:
             submit = st.form_submit_button('Generieren …', use_container_width=True)
