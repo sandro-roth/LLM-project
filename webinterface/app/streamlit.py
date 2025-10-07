@@ -8,6 +8,7 @@ import yaml
 from jinja2 import Template
 
 from utils import setup_logging
+from systemmessage_dialog import render_systemmessage_dialog
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -228,7 +229,20 @@ class Webber:
 
     def textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
-        submit = self.input.form_submit_button('Generieren ...')
+        b1, b2 = self.input.columns([1, 1])
+
+        with b1:
+            with st.popover("Systemmessage", use_container_width=True):
+                # auto-save into session state; no buttons here
+                st.text_area(
+                    "System Prompt",
+                    key="systemmessage_editor",
+                    height=300,
+                    help="Eigene Systemmessage (optional). Wenn gesetzt, überschreibt sie das YAML-Template."
+                )
+
+        with b2:
+            submit = st.form_submit_button('Generieren …', use_container_width=True)
 
         if not submit:
             if 'output_text' not in st.session_state:
@@ -333,6 +347,35 @@ class Webber:
                              key="bericht_typ")
 
                 st.markdown("</div>", unsafe_allow_html=True)
+
+                # --- Spalte 3: Sampler-Parameter ---
+                with self.input3:
+                    sampler_box = st.container()
+                    with sampler_box:
+                        self.add_vertical_space(sampler_box, lines=3)  # Höhe ausgleichen
+                        st.subheader("Parameter", divider="gray")
+
+                        # Defaults nur einmal setzen
+                        if 'temperature' not in st.session_state:
+                            st.session_state['temperature'] = 0.7
+                        if 'top_p' not in st.session_state:
+                            st.session_state['top_p'] = 0.9
+
+                        st.slider(
+                            "Temperature",
+                            min_value=0.0, max_value=2.0, step=0.1,
+                            value=st.session_state['temperature'],
+                            key="temperature",
+                            help="Höher = kreativer, niedriger = deterministischer."
+                        )
+
+                        st.slider(
+                            "Top-p",
+                            min_value=0.0, max_value=1.0, step=0.01,
+                            value=st.session_state['top_p'],
+                            key="top_p",
+                            help="Nukleus-Sampling: Anteil der wahrscheinlichsten Token (0.8–0.95 ist üblich)."
+                        )
 
 
 if __name__ == "__main__":
