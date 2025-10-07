@@ -38,6 +38,20 @@ LLM_MODELS = {
 # === Logging Setup ===
 LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
 
+def fetch_llm_defaults() -> dict:
+    """Fragt /config beim aktiven Inference-Server ab. Fallback auf sinnvolle Werte."""
+    api_url = LLM_MODELS[MODEL_NAME]['api_url']
+    base = api_url.rsplit("/", 1)[0]  # .../generate[_stream] -> .../
+    try:
+        r = session.get(f"{base}/config", timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        return data.get("defaults", {})
+    except Exception as e:
+        LOGGER.warning(f"Defaults konnten nicht geladen werden, nutze Fallbacks: {e}")
+        return {"temperature": 0.8, "top_p": 0.9, "max_tokens": 200}
+
+
 def stream_llm_response(api_url: str, payload: dict):
     with session.post(api_url, json=payload, stream=True, timeout=300,
                       headers={"Accept": "text/event-stream", "Cache_control": "no-cache"}) as r:
@@ -119,6 +133,10 @@ class Webber:
     def __init__(self):
         if 'sysmsg_overrides' not in st.session_state:
             st.session_state['sysmsg_overrides'] = {}
+
+        if 'defaults' not in st.session_state:
+            st.session_state['defaults'] = fetch_llm_defaults()
+
         LOGGER.info('Streamlit frontend gestartet')
         st.set_page_config(
             page_title="Medizinische Berichte",
