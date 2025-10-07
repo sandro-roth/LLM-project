@@ -103,8 +103,12 @@ class ApertusInferenceLLM(LLM):
             parts.append(chunk)
         return "".join(parts)
 
-    def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
-        return self._call(prompt=prompt, system_prompt=system_prompt)
+
+    def invoke(self, prompt: str, system_prompt: Optional[str] = None,
+               *, temperature: Optional[float] = None, top_p: Optional[float] = None,
+               max_tokens: Optional[int] = None) -> str:
+        return self._call(prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens)
+
 
     @timeit
     def stream(self, prompt: str, system_prompt: Optional[str] = None) -> Iterator[str]:
