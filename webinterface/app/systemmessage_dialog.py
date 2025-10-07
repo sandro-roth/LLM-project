@@ -45,7 +45,7 @@ def render_systemmessage_dialog(active_key: str, get_effective_system_message):
     # aktueller Override (falls vorhanden)
 
     current = overrides.get(active_key, "")
-    if editor_key in st.sesseion_state:
+    if editor_key in st.session_state:
         st.text_area(
             f'Systemprompt für: {active_key}',
             key=editor_key,
