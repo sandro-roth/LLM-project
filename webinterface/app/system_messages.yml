@@ -66,3 +66,7 @@ Korrigieren:
     Ausgabe:  Der Patientin geht es besser.
 
     Gib ausschließlich den korrigierten Text zurück.
+
+Chatbot:
+  template: |
+    Du bist ein Chatbot welcher auf Fragen wartet und diese Versucht zu beantworten.
