@@ -49,7 +49,12 @@ def sse_event(data: dict) -> str:
 def generate_text_stream(request: PromptRequest):
     def token_generator() -> Generator[bytes, None, None]:
         try:
-            for tok in llm.stream(prompt=request.prompt, system_prompt=request.system_prompt):
+            for tok in llm.stream(prompt=request.prompt,
+                                  system_prompt=request.system_prompt,
+                                  temperature=request.temperature,
+                                  top_p=request.top_p,
+                                  max_tokens=request.max_tokens
+                                  ):
                 if tok:
                     yield sse_event({"token": tok}).encode("utf-8")
             yield sse_event({"finished": True}).encode("utf-8")
