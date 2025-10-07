@@ -33,6 +33,10 @@ class PromptRequest(BaseModel):
     top_p: Optional[float] = None
     max_tokens: Optional[int] = None
 
+class ConfigOut(BaseModel):
+    model: str = 'Apertus8B'
+    defaults: dict
+
 @app.post("/generate")
 def generate_text(request:PromptRequest):
     response = llm.invoke(prompt=request.prompt,
@@ -72,3 +76,14 @@ def generate_text_stream(request: PromptRequest):
             "X-Accel-Buffering": "no",
         },
     )
+
+@app.get("/config")
+def get_config() -> ConfigOut:
+    return ConfigOut(
+        defaults={
+            'temperature':llm._temperature,
+            'top_p':llm._top_p,
+            'max_tokens':llm._max_tokens,
+        }
+    )
+
