@@ -370,19 +370,28 @@ class Webber:
                 with self.input3:
                     sampler_box = st.container()
                     with sampler_box:
-                        self.add_vertical_space(sampler_box, lines=3)  # Höhe ausgleichen
+                        self.add_vertical_space(sampler_box, lines=3)
                         st.subheader("Parameter", divider="gray")
 
-                        # Defaults nur einmal setzen
-                        if 'temperature' not in st.session_state:
-                            st.session_state['temperature'] = 0.7
-                        if 'top_p' not in st.session_state:
-                            st.session_state['top_p'] = 0.9
+                        # Defaults einmalig laden/cachen
+                        if 'defaults' not in st.session_state:
+                            st.session_state['defaults'] = fetch_llm_defaults()
 
+                        d = st.session_state['defaults']
+
+                        # Session-State initialisieren (einmalig)
+                        if 'temperature' not in st.session_state:
+                            st.session_state['temperature'] = float(d.get('temperature', 0.8))
+                        if 'top_p' not in st.session_state:
+                            st.session_state['top_p'] = float(d.get('top_p', 0.9))
+                        if 'max_tokens' not in st.session_state:
+                            st.session_state['max_tokens'] = int(d.get('max_tokens', 200))
+
+                        # --- Slider ---
                         st.slider(
                             "Temperature",
                             min_value=0.0, max_value=2.0, step=0.1,
-                            value=st.session_state['temperature'],
+                            value=float(st.session_state['temperature']),
                             key="temperature",
                             help="Höher = kreativer, niedriger = deterministischer."
                         )
@@ -390,10 +399,32 @@ class Webber:
                         st.slider(
                             "Top-p",
                             min_value=0.0, max_value=1.0, step=0.01,
-                            value=st.session_state['top_p'],
+                            value=float(st.session_state['top_p']),
                             key="top_p",
                             help="Nukleus-Sampling: Anteil der wahrscheinlichsten Token (0.8–0.95 ist üblich)."
                         )
+
+                        st.slider(
+                            "Max tokens",
+                            min_value=16, max_value=4096, step=16,
+                            value=int(st.session_state['max_tokens']),
+                            key="max_tokens",
+                            help="Maximale Anzahl neu erzeugter Tokens."
+                        )
+
+                        # --- Zurücksetzen-Button (unterhalb des letzten Reglers) ---
+                        if st.button("Zurücksetzen", use_container_width=True,
+                                     help="Setzt die Regler auf die Server-Defaults zurück."):
+                            # Neu vom Server holen (falls der Admin die Defaults geändert hat)
+                            st.session_state['defaults'] = fetch_llm_defaults()
+                            d = st.session_state['defaults']
+
+                            st.session_state['temperature'] = float(d.get('temperature', 0.8))
+                            st.session_state['top_p'] = float(d.get('top_p', 0.9))
+                            st.session_state['max_tokens'] = int(d.get('max_tokens', 200))
+
+                            st.toast("Parameter auf Server-Defaults zurückgesetzt.", icon="✅")
+                            st.rerun()  # UI sofort aktualisieren
 
 
 if __name__ == "__main__":
