@@ -26,9 +26,41 @@ class ApertusInferenceLLM(LLM):
             'role': 'system', 'content':'Du bist ein präziser, detailorientierter medizinischer Schreibassistent.'
         })
 
+
     @property
     def _llm_type(self) -> str:
         return 'apertus-inference'
+
+
+    def _effective_params(self, temperature:Optional[float], top_p:Optional[float], max_tokens:Optional[int]):
+        """ helper function for _call and stream """
+        temp = self._temperature if temperature is None else float(temperature)
+        nucleus = self._top_p if top_p is None else float(top_p)
+        max_new = self._max_tokens if max_tokens is None else int(max_tokens)
+        return temp, nucleus, max_new, (temp > 0.0)
+
+
+    def _build_inputs(self, prompt: str, system_prompt: Optional[str]):
+        """ helper function for _call and stream """
+        sys_msg = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
+        messages = [sys_msg, {'role': 'user', 'content': prompt}]
+        return self._tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors='pt'
+        ).to(self._model.device)
+
+
+    def _gen_kwargs(self, inputs, max_new: int, temp: float, nucleus: float, do_sample: bool, *, streamer=None):
+        return dict(
+            **inputs,
+            max_new_tokens=max_new,
+            temperature=temp,
+            top_p=nucleus,
+            do_sample=do_sample,
+            pad_token_id=self._tokenizer.eos_token_id,
+            eos_token_id=self._tokenizer.eos_token_id,
+            **({"streamer": streamer} if streamer is not None else {})
+        )
+
 
     @timeit
     def _call(self,prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
@@ -70,6 +102,7 @@ class ApertusInferenceLLM(LLM):
     def invoke(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         return self._call(prompt=prompt, system_prompt=system_prompt)
 
+    @timeit
     def stream(self, prompt: str, system_prompt: Optional[str] = None) -> Iterator[str]:
         """
         Gibt inkrementell Textstücke zurück (Token/Chunks), sobald sie generiert werden.
