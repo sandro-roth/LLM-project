@@ -117,9 +117,6 @@ def write_stream_generator(api_url: str, payload: dict):
     for chunk in stream_llm_response(api_url, payload):
         yield chunk
 
-def write_stream_with_accumulator(gen):
-    acc = []
-    yielded_any = False
 
     def _coerce_chunks():
         nonlocal yielded_any
