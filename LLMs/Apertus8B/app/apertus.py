@@ -62,6 +62,31 @@ class ApertusInferenceLLM(LLM):
         )
 
 
+    def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
+            *, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]) -> Iterator[str]:
+        temp, nucleus, max_new, do_sample = self._effective_params(temperature, top_p, max_tokens)
+        LOGGER.info(f"Sampling: max_new={max_new}, temperature={temp}, top_p={nucleus}")
+        inputs = self._build_inputs(prompt, system_prompt)
+
+        streamer = TextIteratorStreamer(
+            self._tokenizer, skip_prompt=True, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+        generate_kwargs = self._gen_kwargs(inputs, max_new, temp, nucleus, do_sample, streamer=streamer)
+
+        def _worker():
+            with torch.no_grad():
+                self._model.generate(**generate_kwargs)
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        try:
+            for text in streamer:
+                if text:
+                    yield text
+        finally:
+            t.join(timeout=0.1)
+
+
     @timeit
     def _call(self,prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None) -> str:
         system_message = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
@@ -92,9 +117,6 @@ class ApertusInferenceLLM(LLM):
         # only newly generated tokens
         input_len = inputs.input_ids.shape[-1]
         new_tokens = outputs[0][input_len:]
-
-        # LOGGER.warning for stop condition
-        # define stop
 
         decoded_output = self._tokenizer.decode(new_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)
         return decoded_output
@@ -140,20 +162,3 @@ class ApertusInferenceLLM(LLM):
             eos_token_id=self._tokenizer.eos_token_id,
             streamer=streamer
         )
-
-        # generate in separatem Thread starten; Haupt-Thread liest aus streamer
-        def _worker():
-            with torch.no_grad():
-                self._model.generate(**generate_kwargs)
-
-        t = threading.Thread(target=_worker, daemon=True)
-        t.start()
-
-        try:
-            for text in streamer:
-                # text kann 1+ Token enthalten; gib es direkt weiter
-                if text:
-                    yield text
-        finally:
-            # Aufräumen/Join ist optional (Streamer beendet sich)
-            t.join(timeout=0.1)
