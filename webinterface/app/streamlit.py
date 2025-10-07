@@ -41,7 +41,7 @@ LOGGER = setup_logging(app_name='streamlit-web', retention=30, to_stdout=True)
 def fetch_llm_defaults() -> dict:
     """Fragt /config beim aktiven Inference-Server ab. Fallback auf sinnvolle Werte."""
     api_url = LLM_MODELS[MODEL_NAME]['api_url']
-    base = api_url.rsplit("/", 1)[0]  # .../generate[_stream] -> .../
+    base = api_url.rsplit("/", 1)[0]
     try:
         r = session.get(f"{base}/config", timeout=10)
         r.raise_for_status()
@@ -374,59 +374,56 @@ class Webber:
                         self.add_vertical_space(sampler_box, lines=3)
                         st.subheader("Parameter", divider="gray")
 
-                        # Defaults einmalig laden/cachen
-                        if 'defaults' not in st.session_state:
-                            st.session_state['defaults'] = fetch_llm_defaults()
+                        # 1) Pending-Reset VOR Widget-Rendern anwenden
+                        if "_pending_reset_values" in st.session_state:
+                            d = st.session_state.pop("_pending_reset_values")
+                            st.session_state["defaults"] = d
+                            st.session_state["temperature"] = float(d.get("temperature", 0.8))
+                            st.session_state["top_p"] = float(d.get("top_p", 0.9))
+                            st.session_state["max_tokens"] = int(d.get("max_tokens", 200))
+                            # Optional: kleiner Toast beim neuen Render
+                            st.toast("Parameter auf Server-Defaults gesetzt.", icon="✅")
 
-                        d = st.session_state['defaults']
+                        # 2) Defaults initial laden/cachen
+                        if "defaults" not in st.session_state:
+                            st.session_state["defaults"] = fetch_llm_defaults()
+                        d = st.session_state["defaults"]
 
-                        # Session-State initialisieren (einmalig)
-                        if 'temperature' not in st.session_state:
-                            st.session_state['temperature'] = float(d.get('temperature', 0.8))
-                        if 'top_p' not in st.session_state:
-                            st.session_state['top_p'] = float(d.get('top_p', 0.9))
-                        if 'max_tokens' not in st.session_state:
-                            st.session_state['max_tokens'] = int(d.get('max_tokens', 200))
+                        # 3) Session-Keys initialisieren (nur falls noch nicht vorhanden)
+                        st.session_state.setdefault("temperature", float(d.get("temperature", 0.8)))
+                        st.session_state.setdefault("top_p", float(d.get("top_p", 0.9)))
+                        st.session_state.setdefault("max_tokens", int(d.get("max_tokens", 200)))
 
-                        # --- Slider ---
+                        # 4) --- Slider RENDERN (ab hier keine direkten Zuweisungen mehr an diese Keys) ---
                         st.slider(
                             "Temperature",
                             min_value=0.0, max_value=2.0, step=0.1,
-                            value=float(st.session_state['temperature']),
+                            value=float(st.session_state["temperature"]),
                             key="temperature",
                             help="Höher = kreativer, niedriger = deterministischer."
                         )
-
                         st.slider(
                             "Top-p",
                             min_value=0.0, max_value=1.0, step=0.01,
-                            value=float(st.session_state['top_p']),
+                            value=float(st.session_state["top_p"]),
                             key="top_p",
                             help="Nukleus-Sampling: Anteil der wahrscheinlichsten Token (0.8–0.95 ist üblich)."
                         )
-
                         st.slider(
                             "Max tokens",
                             min_value=16, max_value=4096, step=16,
-                            value=int(st.session_state['max_tokens']),
+                            value=int(st.session_state["max_tokens"]),
                             key="max_tokens",
                             help="Maximale Anzahl neu erzeugter Tokens."
                         )
 
-                        # --- Zurücksetzen-Button (unterhalb des letzten Reglers) ---
+                        # 5) Reset-Button: nur Flag/Werte setzen + sofort rerun
                         if st.button("Zurücksetzen", use_container_width=True,
                                      help="Setzt die Regler auf die Server-Defaults zurück."):
-                            # Neu vom Server holen (falls der Admin die Defaults geändert hat)
-                            st.session_state['defaults'] = fetch_llm_defaults()
-                            d = st.session_state['defaults']
-
-                            st.session_state['temperature'] = float(d.get('temperature', 0.8))
-                            st.session_state['top_p'] = float(d.get('top_p', 0.9))
-                            st.session_state['max_tokens'] = int(d.get('max_tokens', 200))
-
-                            st.toast("Parameter auf Server-Defaults zurückgesetzt.", icon="✅")
-                            st.rerun()  # UI sofort aktualisieren
-
+                            # Defaults JETZT holen und im State parken ...
+                            st.session_state["_pending_reset_values"] = fetch_llm_defaults()
+                            # ... UI neu starten, sodass die Zuweisung VOR den Widgets passiert
+                            st.rerun()
 
 if __name__ == "__main__":
     page = Webber()
