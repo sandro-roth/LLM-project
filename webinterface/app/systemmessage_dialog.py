@@ -49,9 +49,16 @@ def render_systemmessage_dialog(active_key: str, get_effective_system_message):
         st.text_area(
             f'Systemprompt für: {active_key}',
             key=editor_key,
-            value=current,
             height=500,
             help="Eigene Systemmessage, überschreibt die Auswahl aus system_messages.yml."
+        )
+    else:
+        st.text_area(
+            f"System Prompt für: {active_key}",
+            key=editor_key,
+            value=current,
+            height=500,
+            help="Eigene Systemmessage für diesen Typ. Leerlassen = YAML-Template."
         )
 
     c1, c2, c3 = st.columns(3)
