@@ -218,6 +218,7 @@ class Webber:
             LOGGER.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
 
+
     def layout(self):
         # ein hoher Container für alles Above-the-Fold
         row1 = st.container(height=self.container_height, border=False)
@@ -229,19 +230,47 @@ class Webber:
         # direkter Platzhalter für Output (Textarea) dir
         self.output_placeholder = self.input1.empty()
 
+
     def textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
+
+        # Aktuellen "Typ"-Key bestimmen (Korrigieren ODER Berichtstyp)
+        bericht_typ = st.session_state.get('bericht_typ', '')
+        korrigieren = st.session_state.get('korrigieren', False)
+        active_key = 'Korrigieren' if korrigieren and not bericht_typ else (bericht_typ if bericht_typ else None)
+
         b1, b2 = self.input.columns([1, 1])
 
         with b1:
+            # Popover-Button (öffnet das Popup)
             with st.popover("Systemmessage", use_container_width=True):
-                # auto-save into session state; no buttons here
-                st.text_area(
-                    "System Prompt",
-                    key="systemmessage_editor",
-                    height=300,
-                    help="Eigene Systemmessage (optional). Wenn gesetzt, überschreibt sie das YAML-Template."
-                )
+                if not active_key:
+                    st.info("Bitte zuerst 'Korrigieren' ODER einen Berichtstyp wählen.")
+                else:
+                    overrides = st.session_state['sysmsg_overrides']
+                    # Editor-Key pro Typ, damit pro Berichtstyp eigener Editorzustand
+                    editor_key = f"systemmessage_editor__{active_key}"
+                    current_val = overrides.get(active_key, "")
+                    st.text_area(
+                        f"System Prompt für: {active_key}",
+                        key=editor_key,
+                        value=current_val,
+                        height=300,
+                        help="Überschreibt die YAML-Template-Nachricht nur für diesen Typ."
+                    )
+
+                    c1, c2 = st.columns(2)
+                    # WICHTIG: innerhalb der Form -> form_submit_button benutzen
+                    save_clicked = c1.form_submit_button("Speichern", use_container_width=True)
+                    reset_clicked = c2.form_submit_button("Zurücksetzen", use_container_width=True)
+
+                    if save_clicked:
+                        st.session_state['sysmsg_overrides'][active_key] = st.session_state.get(editor_key, "").strip()
+                        st.success(f"Systemmessage für „{active_key}“ gespeichert.")
+                    if reset_clicked:
+                        st.session_state['sysmsg_overrides'].pop(active_key, None)
+                        st.session_state.pop(editor_key, None)
+                        st.info(f"Override für „{active_key}“ zurückgesetzt (YAML-Vorlage wird verwendet).")
 
         with b2:
             submit = st.form_submit_button('Generieren …', use_container_width=True)
@@ -262,16 +291,21 @@ class Webber:
         api_url = LLM_MODELS[MODEL_NAME]['api_url']
         bericht_typ = st.session_state.get('bericht_typ', '')
         korrigieren = st.session_state.get('korrigieren', False)
+        active_key = 'Korrigieren' if korrigieren and not bericht_typ else (bericht_typ if bericht_typ else None)
 
-        if bericht_typ and not korrigieren:
-            system_message = self.render_system_message(bericht_typ)
-        elif korrigieren and not bericht_typ:
-            system_message = self.render_system_message('Korrigieren')
-        else:
+        if not active_key:
             st.warning("Bitte wähle entweder 'Korrigieren' oder einen gültigen Berichtstyp.")
             return
 
-        payload = {'prompt': text.strip(), 'system_prompt': system_message}
+        override = st.session_state.get('sysmsg_overrides', {}).get(active_key)
+        if override and override.strip():
+            system_message = override.strip()
+        else:
+            system_message = self.render_system_message(active_key)
+
+        payload = {'prompt': text.strip(), 'system_prompt': system_message,
+                   'temperature': st.session_state.get('temperature', 0.8),
+                   'top_p': st.session_state.get('top_p', 0.9)}
 
         # 1) Live anzeigen mit write_stream (Markdown), **ein** Platzhalter
         LOGGER.info('Livestreaming gestartet')
