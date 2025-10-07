@@ -1,7 +1,26 @@
-# systemmessage_dialog.py
 import streamlit as st
 
 def render_systemmessage_dialog():
+    st.markdown("""
+        <style>
+        /* gesamter Dialogbereich breiter machen */
+        section[data-testid="stPopoverBody"], section[data-testid="stDialog"] {
+            width: 900px !important;      /* Gesamtbreite */
+            max-width: 95vw !important;   /* auf kleinen Screens begrenzen */
+        }
+
+        /* Textarea speziell in diesem Dialog */
+        textarea[aria-label="System Prompt"] {
+            width: 100% !important;
+            min-width: 850px !important;
+            height: 500px !important;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            resize: vertical;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     st.subheader("Systemmessage bearbeiten", divider="gray")
 
     # aktueller Override (falls vorhanden)
@@ -9,7 +28,7 @@ def render_systemmessage_dialog():
     st.text_area(
         "System Prompt",
         value=current,
-        height=300,
+        height=500,
         key="systemmessage_editor",
         help="Eigene Systemmessage, überschreibt die Auswahl aus system_messages.yml."
     )
