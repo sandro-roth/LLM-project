@@ -146,7 +146,7 @@ def write_stream_with_accumulator(gen):
 
 
 class Webber:
-    container_height = 380
+    container_height = 800
     row1_split = [7, 1.5, 1.5]
     io_form_height = 350
     input_text_height = 240
@@ -212,14 +212,16 @@ class Webber:
             LOGGER.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
 
-
     def layout(self):
+        # ein hoher Container für alles Above-the-Fold
         row1 = st.container(height=self.container_height, border=False)
         self.input1, self.input2, self.input3 = row1.columns(self.row1_split, border=False)
+
+        # Eingabeformular bleibt in Spalte 1 oben
         self.input = self.input1.form('my_input', height=self.io_form_height, border=False)
 
+        # direkter Platzhalter für Output (Textarea) dir
         self.output_placeholder = self.input1.empty()
-
 
     def textfield(self):
         text = self.input.text_area('Füge hier die Eckdaten des Berichtes ein:', height=self.input_text_height)
@@ -230,7 +232,7 @@ class Webber:
                 st.session_state['output_text'] = ""
             with self.output_placeholder.container():
                 st.text_area('Report:', value=st.session_state['output_text'],
-                             height=self.input_text_height, disabled=True)
+                             height=self.input_text_height, disabled=False)
             return
 
         LOGGER.info('Generieren Knopf gedrückt')
