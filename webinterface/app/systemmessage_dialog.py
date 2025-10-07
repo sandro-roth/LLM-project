@@ -34,7 +34,7 @@ def render_systemmessage_dialog():
         help="Eigene Systemmessage, überschreibt die Auswahl aus system_messages.yml."
     )
 
-    c1, c2, c3 = st.columns(2)
+    c1, c2, c3 = st.columns(3)
     if c1.button('Show', use_container_width=True, key='show_sysmsg'):
         effective = None
         effective = st.session_state.get('rendered_system_message')
