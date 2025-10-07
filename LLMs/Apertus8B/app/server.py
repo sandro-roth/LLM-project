@@ -29,6 +29,9 @@ app = FastAPI(
 class PromptRequest(BaseModel):
     prompt: str
     system_prompt: Optional[str] = None
+    temperature: Optional[float] = None
+    top_p: Optional[float] = None
+    max_tokens: Optional[int] = None
 
 @app.post("/generate")
 def generate_text(request:PromptRequest):
