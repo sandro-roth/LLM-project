@@ -146,7 +146,7 @@ def write_stream_with_accumulator(gen):
 
 
 class Webber:
-    container_height = 800
+    container_height = "content"
     row1_split = [7, 1.5, 1.5]
     io_form_height = 350
     input_text_height = 240
@@ -158,24 +158,27 @@ class Webber:
             layout="wide",
             initial_sidebar_state="collapsed"
         )
-        st.markdown(
-            """
-            <style>
-                /* Header/Menu/Footers schlank halten */
-                .block-container { padding-top: 0.8rem; padding-bottom: 0.2rem; }
-                header { visibility: hidden; height: 0; }
-                [data-testid="stToolbar"] { display: none !important; }
-                /* Spalten-Gap kleiner */
-                .css-ocqkz7, .st-emotion-cache-13k62yr { gap: 0.75rem !important; }
-                /* Textareas etwas eleganter */
-                textarea { line-height: 1.35; font-size: 0.95rem; }
-                /* Tabs straffer */
-                .stTabs [data-baseweb="tab-list"] { gap: 0.25rem; }
-                .stTabs [data-baseweb="tab"] { padding: 6px 10px; }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
+        st.markdown("""
+        <style>
+          /* etwas kompakter, weniger Scrollbedarf */
+          .block-container { padding-top: 1rem; padding-bottom: 0.5rem; }
+
+          /* Eingabe-Textarea dynamisch (z. B. 30% der Fensterhöhe) */
+          textarea[aria-label="Eingabe (Eckdaten des Berichtes):"] {
+              height: 30vh !important;
+              min-height: 180px;
+          }
+
+          /* Ausgabe-Textarea dynamisch (z. B. 45% der Fensterhöhe) */
+          textarea[aria-label="Report:"] {
+              height: 45vh !important;
+              min-height: 220px;
+          }
+
+          /* Optional: Spaltenabstand etwas schlanker */
+          .st-emotion-cache-13k62yr, .st-emotion-cache-ocqkz7 { gap: 0.75rem !important; }
+        </style>
+        """, unsafe_allow_html=True)
 
         st.title("Generieren und korrigieren medizinischer Berichte mithilfe von LLMs")
 
@@ -287,7 +290,7 @@ class Webber:
         st.session_state['output_text'] = final_text
         self.output_placeholder.empty()
         with self.output_placeholder.container():
-            st.text_area('Report:', value=final_text, height=self.input_text_height, disabled=True)
+            st.text_area('Report:', value=final_text, height=self.input_text_height, disabled=False)
             st.download_button(
                 label='Download',
                 data=final_text,
