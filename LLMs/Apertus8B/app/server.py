@@ -35,7 +35,11 @@ class PromptRequest(BaseModel):
 
 @app.post("/generate")
 def generate_text(request:PromptRequest):
-    response = llm.invoke(prompt=request.prompt, system_prompt=request.system_prompt)
+    response = llm.invoke(prompt=request.prompt,
+                          system_prompt=request.system_prompt,
+                          temperature=request.temperature,
+                          top_p=request.top_p,
+                          max_tokens=request.max_tokens)
     return {"response": response}
 
 def sse_event(data: dict) -> str:
