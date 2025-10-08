@@ -9,6 +9,7 @@ from jinja2 import Template
 
 from utils import setup_logging
 from systemmessage_dialog import render_systemmessage_dialog
+from system_messages_helper import load_messages, render_system_message as render_sysmsg
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -170,10 +171,8 @@ class Webber:
 
     def get_available_berichtstypen(self):
         try:
-            filepath = os.path.join(BASE_DIR, 'system_messages.yml')
-            with open(filepath, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-                return [key for key in data if key != "Korrigieren"]
+            data = load_messages()
+            return [key for key in data if key != "Korrigieren"]
         except Exception as e:
             LOGGER.error(f"Fehler beim Laden der Berichtstypen: {e}")
             return []
@@ -181,21 +180,7 @@ class Webber:
 
     def render_system_message(self, key: str) -> str:
         try:
-            filepath = os.path.join(BASE_DIR, 'system_messages.yml')
-            with open(filepath, 'r', encoding='utf-8') as f:
-                all_data = yaml.safe_load(f)
-
-            entry = all_data.get(key)
-            if not entry:
-                LOGGER.warning(f'Kein Template für Schlüssel {key} gefunden.')
-                return ""
-
-            template_str = entry.get('template', '')
-            context = entry.get('context', {})
-
-            template = Template(template_str)
-            return template.render(context)
-
+            return render_sysmsg(key, overrides=st.session_state.get('sysmsg_overrides'))
         except Exception as e:
             LOGGER.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
