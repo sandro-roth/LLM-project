@@ -3,6 +3,8 @@ import requests
 import os
 import html
 
+from system_messages_helper import render_system_message as render_sysmsg
+
 API_BASE_URL = os.getenv("API_BASE_URL", "http://inference:8100")
 session = requests.Session()
 session.trust_env = False
@@ -58,7 +60,7 @@ with st.form("chat_input_form", clear_on_submit=True):
 
 if send and user_text.strip():
     st.session_state["chat"].append({"role": "user", "content": user_text.strip()})
-
+    system_prompt = render_sysmsg("Chatbot")
 
     payload = {
         "prompt": user_text.strip(),
