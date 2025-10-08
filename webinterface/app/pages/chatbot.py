@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
+import os
+import html
 
+API_BASE_URL = os.getenv("API_BASE_URL", "http://inference:8100")
 session = requests.Session(); session.trust_env = False
 
 #Chat bubbles
@@ -16,6 +19,10 @@ st.markdown("""
 .meta { font-size: 0.75rem; color:#6b7280; margin: 0 4px; }
 </style>
 """, unsafe_allow_html=True)
+
+# Chat-History im Session State
+if "chat" not in st.session_state:
+    st.session_state["chat"] = []
 
 st.session_state.setdefault('korrigieren', False)
 st.session_state.setdefault('bericht_typ', 'Chatbot')
