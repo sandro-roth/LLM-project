@@ -24,3 +24,20 @@ st.markdown("""
 if "chat" not in st.session_state:
     st.session_state["chat"] = []
 
+
+def render_chat():
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    for m in st.session_state["chat"]:
+        role = m["role"]
+        content = html.escape(m["content"])
+        if role == "user":
+            st.markdown(
+                f'<div class="msg-row left"><div class="msg user">{content}</div></div>',
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f'<div class="msg-row right"><div class="msg assistant">{content}</div></div>',
+                unsafe_allow_html=True
+            )
+    st.markdown('</div>', unsafe_allow_html=True)
