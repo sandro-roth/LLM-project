@@ -349,10 +349,10 @@ class Webber:
                 # Wenn Chatbot gewählt ist → zur Chatbot-Seite wechseln
                 if st.session_state.get("bericht_typ") == "Chatbot":
                     try:
-                        st.switch_page("pages/Chatbot.py")
+                        st.switch_page("pages/chatbot.py")
                     except Exception:
                         # Fallback für ältere Streamlit-Versionen
-                        st.experimental_set_query_params(view="chatbot")
+                        st.query_params.update(view="chatbot")
                         st.rerun()
 
                 st.markdown("</div>", unsafe_allow_html=True)
