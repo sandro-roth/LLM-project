@@ -9,8 +9,7 @@ st.session_state.setdefault('bericht_typ', 'Chatbot')
 # Steuerelemente
 left, right = st.columns([2,8])
 with left:
-    st.checkbox('Korrigieren', key='korrigieren')
-    st.selectbox('Berichtstyp', ['', 'Chatbot'], key='bericht_typ')
+    st.selectbox('Berichtstyp', ['Chatbot'], key='bericht_typ')
 
 # Textfeld
 msg = st.text_area('Nachricht:', key='chat_input')
