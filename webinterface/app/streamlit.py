@@ -352,8 +352,7 @@ class Webber:
                 with self.input3:
                     sampler_box = st.container()
                     with sampler_box:
-                        self.add_vertical_space(sampler_box, lines=3)
-                        #st.subheader("Parameter", divider="gray")
+                        self.add_vertical_space(sampler_box, lines=4)
                         st.markdown(
                             "<p style='font-size:1.1rem; font-weight:700; margin-bottom:0.4rem;'>Parameter</p>",
                             unsafe_allow_html=True
