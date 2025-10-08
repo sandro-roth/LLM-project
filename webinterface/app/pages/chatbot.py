@@ -28,8 +28,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Chat-History im Session State
-if "chat" not in st.session_state:
-    st.session_state["chat"] = []
+st.session_state.setdefault("chat", [])
+
+# Eingabe – bleibt automatisch am Seitenende
+user_msg = st.chat_input("Nachricht schreiben …")
 
 
 def render_chat():
@@ -52,25 +54,18 @@ def render_chat():
 # Anzeige updaten
 render_chat()
 
-# Eingabe + Senden
-with st.form("chat_input_form", clear_on_submit=True):
-    user_text = st.text_area("Nachricht schreiben …", key="chat_input", height=100)
-    col_send, col_sp = st.columns([1, 5])
-    send = col_send.form_submit_button("Senden", use_container_width=True)
-
-if send and user_text.strip():
-    st.session_state["chat"].append({"role": "user", "content": user_text.strip()})
+if user_msg and user_msg.strip():
+    st.session_state["chat"].append({"role": "user", "content": user_msg.strip()})
     system_prompt = render_sysmsg("Chatbot")
 
     payload = {
-        "prompt": user_text.strip(),
+        "prompt": user_msg.strip(),
         "system_prompt": system_prompt,
         "temperature": st.session_state.get("temperature", 0.8),
         "top_p": st.session_state.get("top_p", 0.9),
         "max_tokens": st.session_state.get("max_tokens", 200),
     }
 
-    # API call
     try:
         resp = session.post(f"{API_BASE_URL}/generate", json=payload, timeout=120)
         if resp.status_code == 200:
@@ -79,12 +74,13 @@ if send and user_text.strip():
                 data = "\n".join(data)
             st.session_state["chat"].append({"role": "assistant", "content": str(data)})
         else:
-            st.session_state["chat"].append({"role": "assistant", "content": f"API Error: {resp.status_code} - {resp.text}"})
+            st.session_state["chat"].append({
+                "role": "assistant",
+                "content": f"API Error: {resp.status_code} - {resp.text}"
+            })
     except Exception as e:
         st.session_state["chat"].append({"role": "assistant", "content": f"Fehler beim Senden: {e}"})
 
-    # 4) Chat neu laden
-    render_chat()
 
 # Zurück-Button
 st.markdown("---")
