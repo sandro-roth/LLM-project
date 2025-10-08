@@ -163,6 +163,16 @@ class Webber:
 
           /* Optional: Spaltenabstand etwas schlanker */
           .st-emotion-cache-13k62yr, .st-emotion-cache-ocqkz7 { gap: 0.75rem !important; }
+          
+          /* Diskreter Hinweis über dem Report */
+          .ai-disclaimer {
+              font-size: 0.9rem;
+              padding: 0.6rem 0.8rem;
+              border: 1px solid rgba(0,0,0,0.08);
+              border-radius: 8px;
+              background: rgba(255, 243, 205, 0.6); /* sanftes gelb */
+              margin: 0 0 0.5rem 0;
+          }
         </style>
         """, unsafe_allow_html=True)
 
@@ -185,6 +195,17 @@ class Webber:
             LOGGER.error(f'Fehler beim Rendern der Systemnachricht: {e}')
             return ""
 
+    def render_disclaimer(self):
+        st.markdown(
+            """
+            <div class="ai-disclaimer">
+              <strong>Hinweis:</strong> Die folgenden Inhalte wurden automatisch von einer KI generiert.
+              Bitte fachlich prüfen – es wird keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität übernommen
+              und die Inhalte ersetzen keine ärztliche Beurteilung.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     def layout(self):
         # ein hoher Container für alles Above-the-Fold
@@ -227,6 +248,7 @@ class Webber:
             if 'output_text' not in st.session_state:
                 st.session_state['output_text'] = ""
             with self.output_placeholder.container():
+                self.render_disclaimer()
                 st.text_area('Report:', value=st.session_state['output_text'],
                              height=self.input_text_height, disabled=False)
             return
@@ -259,6 +281,7 @@ class Webber:
         # 1) Live anzeigen mit write_stream (Markdown), **ein** Platzhalter
         LOGGER.info('Livestreaming gestartet')
         with self.output_placeholder.container():
+            self.render_disclaimer()
             st.markdown("**Report (live):**")
             # write_stream rendert live und gibt am Ende den zusammengesetzten String zurück
             final_text = st.write_stream(stream_llm_response(api_url, payload))
@@ -289,6 +312,7 @@ class Webber:
         st.session_state['output_text'] = final_text
         self.output_placeholder.empty()
         with self.output_placeholder.container():
+            self.render_disclaimer()
             st.text_area('Report:', value=final_text, height=self.input_text_height, disabled=False)
             st.download_button(
                 label='Download',
