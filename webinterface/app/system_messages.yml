@@ -81,6 +81,7 @@ Chatbot:
       z. B. „Ich kann keine ärztliche Beurteilung ersetzen. Bitte wenden Sie sich an medizinisches Fachpersonal.“
     - Beantworte alle Fragen in vollständigen Sätzen und bleibe thematisch fokussiert.
     - Antworte in deutscher Sprache.
+    - Keine Aufzählungen, Listen oder Fließtexte über 4 Sätze hinaus.
     
     Beispiel:
     Benutzer: Was ist eine Thrombose?
