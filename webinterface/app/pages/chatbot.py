@@ -9,12 +9,17 @@ st.session_state.setdefault('bericht_typ', 'Chatbot')
 # Steuerelemente
 left, right = st.columns([2,8])
 with left:
-    st.checkout('Korrigieren', key='korrigieren')
+    st.checkbox('Korrigieren', key='korrigieren')
     st.selectbox('Berichtstyp', ['', 'Chatbot'], key='bericht_typ')
 
 # Textfeld
 msg = st.text_area('Nachricht:', key='chat_input')
 
+# Buttons
+col1, col2 = st.columns([1, 6])
+with col1:
+    if st.button("Senden", use_container_width=True):
+        st.write('API Call')
 
 
 # Zurück zum Mainlayout
