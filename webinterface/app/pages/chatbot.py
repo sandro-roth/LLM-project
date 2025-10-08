@@ -4,7 +4,12 @@ import os
 import html
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://inference:8100")
-session = requests.Session(); session.trust_env = False
+session = requests.Session()
+session.trust_env = False
+
+# === Page setup ===
+st.set_page_config(page_title="Chatbot", layout="wide")
+st.title("Chatbot")
 
 #Chat bubbles
 st.markdown("""
@@ -41,3 +46,49 @@ def render_chat():
                 unsafe_allow_html=True
             )
     st.markdown('</div>', unsafe_allow_html=True)
+
+# Anzeige updaten
+render_chat()
+
+# Eingabe + Senden
+with st.form("chat_input_form", clear_on_submit=True):
+    user_text = st.text_area("Nachricht schreiben …", key="chat_input", height=100)
+    col_send, col_sp = st.columns([1, 5])
+    send = col_send.form_submit_button("Senden", use_container_width=True)
+
+if send and user_text.strip():
+    st.session_state["chat"].append({"role": "user", "content": user_text.strip()})
+
+
+    payload = {
+        "prompt": user_text.strip(),
+        "system_prompt": system_prompt,
+        "temperature": st.session_state.get("temperature", 0.8),
+        "top_p": st.session_state.get("top_p", 0.9),
+        "max_tokens": st.session_state.get("max_tokens", 200),
+    }
+
+    # API call
+    try:
+        resp = session.post(f"{API_BASE_URL}/generate", json=payload, timeout=120)
+        if resp.status_code == 200:
+            data = resp.json().get("response", "")
+            if isinstance(data, list):
+                data = "\n".join(data)
+            st.session_state["chat"].append({"role": "assistant", "content": str(data)})
+        else:
+            st.session_state["chat"].append({"role": "assistant", "content": f"API Error: {resp.status_code} - {resp.text}"})
+    except Exception as e:
+        st.session_state["chat"].append({"role": "assistant", "content": f"Fehler beim Senden: {e}"})
+
+    # 4) Chat neu laden
+    render_chat()
+
+# Zurück-Button
+st.markdown("---")
+if st.button("← Zurück", use_container_width=True):
+    try:
+        st.switch_page("streamlit.py")
+    except Exception:
+        st.query_params.clear()
+        st.rerun()
