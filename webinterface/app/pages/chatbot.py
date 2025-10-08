@@ -23,7 +23,6 @@ with col1:
 
 # Zurück zum Mainlayout
 if st.button("← Zurück", use_container_width=True):
-    st.session_state['bericht_typ'] = ""
     try:
         st.switch_page('streamlit.py')
     except Exception:
