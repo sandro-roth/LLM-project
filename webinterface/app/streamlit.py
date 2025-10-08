@@ -346,6 +346,15 @@ class Webber:
                              disabled=disable_bericht_typ,
                              key="bericht_typ")
 
+                # Wenn Chatbot gewählt ist → zur Chatbot-Seite wechseln
+                if st.session_state.get("bericht_typ") == "Chatbot":
+                    try:
+                        st.switch_page("pages/Chatbot.py")
+                    except Exception:
+                        # Fallback für ältere Streamlit-Versionen
+                        st.experimental_set_query_params(view="chatbot")
+                        st.rerun()
+
                 st.markdown("</div>", unsafe_allow_html=True)
 
                 # --- Spalte 3: Sampler-Parameter ---
