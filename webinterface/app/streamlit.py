@@ -381,24 +381,34 @@ class Webber:
                             min_value=0.0, max_value=2.0, step=0.1,
                             value=float(st.session_state["temperature"]),
                             key="temperature",
-                            help="Höher = kreativer, niedriger = deterministischer."
+                            help="Der Temperature-Parameter steuert, wie zufällig oder deterministisch ein LLM Text\n"
+                                 "generiert: niedrige Werte (z. B. 0.2–0.5) machen den Output präziser und\n"
+                                 "wiederholbarer, hohe Werte (z. B. > 1.0) kreativer, aber auch unvorhersehbarer.\n"
+                                 "Der übliche Bereich liegt zwischen 0.7 und 1.0 – darunter wird das Modell konservativ,\n"
+                                 "darüber zunehmend frei und variantenreich."
                         )
                         st.slider(
                             "Top-p",
                             min_value=0.0, max_value=1.0, step=0.01,
                             value=float(st.session_state["top_p"]),
                             key="top_p",
-                            help="Nukleus-Sampling: Anteil der wahrscheinlichsten Token (0.8–0.95 ist üblich)."
+                            help="Steuert, wie viele der wahrscheinlichsten Wörter bei der Textgenerierung berücksichtigt\n"
+                                 "werden. Das Modell wählt nur aus den Top-Token, deren kumulierte\n"
+                                 "Wahrscheinlichkeit ≤ p ist — kleinere Werte (z. B. 0.8) machen den Output fokussierter,\n"
+                                 "höhere (z. B. 0.95–1.0) vielfältiger. Typischer Wert: 0.8 - 0.95"
                         )
                         st.slider(
                             "Max tokens",
                             min_value=16, max_value=4096, step=16,
                             value=int(st.session_state["max_tokens"]),
                             key="max_tokens",
-                            help="Maximale Anzahl neu erzeugter Tokens."
+                            help="Begrenzt, wie viele neue Tokens (Wörter oder Wortteile) das Modell maximal\n"
+                                 "generieren darf, um zu lange Ausgaben zu verhindern.\n"
+                                 "Typischer Bereich: 100 - 1000 Tokens, abhängig von der Anwendung\n"
+                                 "(Berichte meist 200 - 400)."
                         )
 
-                        # 5) Reset-Button: nur Flag/Werte setzen + sofort rerun
+                        # Reset-Button: nur Flag/Werte setzen + sofort rerun
                         if st.button("Zurücksetzen", use_container_width=True,
                                      help="Setzt die Regler auf die Server-Defaults zurück."):
                             # Defaults JETZT holen und im State parken ...
