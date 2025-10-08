@@ -52,12 +52,18 @@ def render_chat():
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Anzeige updaten
-render_chat()
+chat_box = st.container()
+with chat_box:
+    render_chat()
 
 if user_msg and user_msg.strip():
+    # Nutzer-Nachricht speichern und SOFORT anzeigen
     st.session_state["chat"].append({"role": "user", "content": user_msg.strip()})
-    system_prompt = render_sysmsg("Chatbot")
+    with chat_box:
+        render_chat()
 
+    # Systemprompt laden + API aufrufen
+    system_prompt = render_sysmsg("Chatbot")
     payload = {
         "prompt": user_msg.strip(),
         "system_prompt": system_prompt,
@@ -67,19 +73,22 @@ if user_msg and user_msg.strip():
     }
 
     try:
-        resp = session.post(f"{API_BASE_URL}/generate", json=payload, timeout=120)
+        with st.spinner("Antwort wird generiert …"):
+            resp = session.post(f"{API_BASE_URL}/generate", json=payload, timeout=120)
         if resp.status_code == 200:
             data = resp.json().get("response", "")
             if isinstance(data, list):
                 data = "\n".join(data)
-            st.session_state["chat"].append({"role": "assistant", "content": str(data)})
+            reply = str(data)
         else:
-            st.session_state["chat"].append({
-                "role": "assistant",
-                "content": f"API Error: {resp.status_code} - {resp.text}"
-            })
+            reply = f"API Error: {resp.status_code} - {resp.text}"
     except Exception as e:
-        st.session_state["chat"].append({"role": "assistant", "content": f"Fehler beim Senden: {e}"})
+        reply = f"Fehler beim Senden: {e}"
+
+    # Assistant-Antwort speichern und NOCHMAL anzeigen
+    st.session_state["chat"].append({"role": "assistant", "content": reply})
+    with chat_box:
+        render_chat()
 
 
 # Zurück-Button
