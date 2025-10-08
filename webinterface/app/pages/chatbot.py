@@ -69,7 +69,7 @@ if user_msg and user_msg.strip():
         "system_prompt": system_prompt,
         "temperature": st.session_state.get("temperature", 0.8),
         "top_p": st.session_state.get("top_p", 0.9),
-        "max_tokens": st.session_state.get("max_tokens", 200),
+        "max_tokens": 300,
     }
 
     try:
