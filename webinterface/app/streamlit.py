@@ -353,7 +353,11 @@ class Webber:
                     sampler_box = st.container()
                     with sampler_box:
                         self.add_vertical_space(sampler_box, lines=3)
-                        st.subheader("Parameter", divider="gray")
+                        #st.subheader("Parameter", divider="gray")
+                        st.markdown(
+                            "<p style='font-size:1.1rem; font-weight:700; margin-bottom:0.4rem;'>Parameter</p>",
+                            unsafe_allow_html=True
+                        )
 
                         # 1) Pending-Reset VOR Widget-Rendern anwenden
                         if "_pending_reset_values" in st.session_state:
