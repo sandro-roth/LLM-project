@@ -334,7 +334,7 @@ class Webber:
                 disable_korrigieren = st.session_state['bericht_typ'] != ""
                 disable_bericht_typ = st.session_state['korrigieren']
 
-                st.checkbox("Korrigieren", value=st.session_state['korrigieren'],
+                st.checkbox("Korrigieren",
                             disabled=disable_korrigieren, key="korrigieren")
 
                 berichtstypen = [""] + self.get_available_berichtstypen()
@@ -362,7 +362,6 @@ class Webber:
                             st.session_state["temperature"] = float(d.get("temperature", 0.8))
                             st.session_state["top_p"] = float(d.get("top_p", 0.9))
                             st.session_state["max_tokens"] = int(d.get("max_tokens", 200))
-                            # Optional: kleiner Toast beim neuen Render
                             st.toast("Parameter auf Server-Defaults gesetzt.", icon="✅")
 
                         # 2) Defaults initial laden/cachen
@@ -379,7 +378,6 @@ class Webber:
                         st.slider(
                             "Temperature",
                             min_value=0.0, max_value=2.0, step=0.1,
-                            value=float(st.session_state["temperature"]),
                             key="temperature",
                             help="Der Temperature-Parameter steuert, wie zufällig oder deterministisch ein LLM Text\n"
                                  "generiert: niedrige Werte (z. B. 0.2–0.5) machen den Output präziser und\n"
@@ -390,7 +388,6 @@ class Webber:
                         st.slider(
                             "Top-p",
                             min_value=0.0, max_value=1.0, step=0.01,
-                            value=float(st.session_state["top_p"]),
                             key="top_p",
                             help="Steuert, wie viele der wahrscheinlichsten Wörter bei der Textgenerierung berücksichtigt\n"
                                  "werden. Das Modell wählt nur aus den Top-Token, deren kumulierte\n"
@@ -400,7 +397,6 @@ class Webber:
                         st.slider(
                             "Max tokens",
                             min_value=16, max_value=4096, step=16,
-                            value=int(st.session_state["max_tokens"]),
                             key="max_tokens",
                             help="Begrenzt, wie viele neue Tokens (Wörter oder Wortteile) das Modell maximal\n"
                                  "generieren darf, um zu lange Ausgaben zu verhindern.\n"
@@ -415,6 +411,7 @@ class Webber:
                             st.session_state["_pending_reset_values"] = fetch_llm_defaults()
                             # ... UI neu starten, sodass die Zuweisung VOR den Widgets passiert
                             st.rerun()
+
 
 if __name__ == "__main__":
     page = Webber()
