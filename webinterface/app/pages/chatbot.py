@@ -15,11 +15,13 @@ with left:
 # Textfeld
 msg = st.text_area('Nachricht:', key='chat_input')
 
+
+
 # Zurück zum Mainlayout
 if st.button("← Zurück", use_container_width=True):
     st.session_state['bericht_typ'] = ""
     try:
         st.switch_page('streamlit.py')
     except Exception:
-        st.experimental_set_query_params()
+        st.query_params.clear()
         st.rerun()
