@@ -43,7 +43,6 @@ def render_systemmessage_dialog(active_key: str, get_effective_system_message):
         st.session_state[editor_key] = st.session_state.pop(pending_key)
 
     # aktueller Override (falls vorhanden)
-
     current = overrides.get(active_key, "")
     if editor_key in st.session_state:
         st.text_area(
@@ -69,8 +68,8 @@ def render_systemmessage_dialog(active_key: str, get_effective_system_message):
 
     if c1_clicked:
         override = overrides.get(active_key, "").strip()
-        effective = overrides if override else (get_effective_system_message(active_key) or "")
-        st.session_state[editor_key] = effective
+        effective = override if override else (get_effective_system_message(active_key) or "")
+        st.session_state[pending_key] = effective
         st.toast('Aktueller Systemprompt geladen')
         st.rerun()
 
@@ -80,6 +79,6 @@ def render_systemmessage_dialog(active_key: str, get_effective_system_message):
 
     if c3_clicked:
         overrides.pop(active_key, None)
-        st.session_state.pop(editor_key, None)
+        st.session_state.pop(pending_key, None)
         st.info(f'Override für {active_key} entfernt - YAML-Template wird wieder verwendet.')
         st.rerun()
