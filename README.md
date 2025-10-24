@@ -183,7 +183,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
   - [X] Flag einführen in .env file für Wahl von LLM
   - [X] Diese flag verwenden in docker-compose.yml
 - [X] Add opensource LLM from ETH
-  - [] Streaming auf der Streamlit Webseite hinzufügen
+  - [X] Streaming auf der Streamlit Webseite hinzufügen
 - [ ] Implementierung von RAG-Support für beide LLM-Modelle
   - [ ] Update Art des Berichtes
 
