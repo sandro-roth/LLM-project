@@ -184,6 +184,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
   - [X] Diese flag verwenden in docker-compose.yml
 - [X] Add opensource LLM from ETH
   - [X] Streaming auf der Streamlit Webseite hinzufügen
+- [ ] Add bigger MoE models
+  - [ ] qwen3-next-80b-a3b-instruct
+  - [ ] qwen3-next-80b-a3b-thinking
+  - [ ] qwen3-235B-A22B-FP8
 - [ ] Implementierung von RAG-Support für beide LLM-Modelle
   - [ ] Update Art des Berichtes
 
