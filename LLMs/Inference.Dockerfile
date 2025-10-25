@@ -126,6 +126,10 @@ ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 90"]
 
+# ---------- Target: Qwen3 ----------
+FROM base AS qwen3
+# service specific logs
+RUN mkdir -p "$LOG_DIR/qwen-inference" && chmod -R 777 "$LOG_DIR/qwen-inference"
 
 # ---------- Final: pick target by name ----------
 FROM ${DOCKER_INFERENCE} AS final
