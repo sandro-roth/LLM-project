@@ -131,5 +131,23 @@ FROM base AS qwen3
 # service specific logs
 RUN mkdir -p "$LOG_DIR/qwen-inference" && chmod -R 777 "$LOG_DIR/qwen-inference"
 
+# requirements + install
+COPY LLMs/Qwen3/requirements.txt /app/requirements.txt
+RUN set -eux; \
+    if [ "$USE_PROXY" = "true" ]; then \
+        export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
+    fi; \
+    python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r /app/requirements.txt
+
+# app code
+COPY utils/ /app/utils/
+COPY LLMs/Qwen3/app /app/app
+
+# normalize to a single PORT (default 8100)
+ENV PORT=8100
+EXPOSE 8100
+CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 90"]
+
 # ---------- Final: pick target by name ----------
 FROM ${DOCKER_INFERENCE} AS final
