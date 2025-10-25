@@ -46,3 +46,71 @@ class ApertusInferenceLLM(LLM):
         return self._tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors='pt'
         ).to(self._model.device)
+
+    def _gen_kwargs(self, inputs, max_new: int, temp: float, nucleus: float, do_sample: bool, *, streamer=None):
+        return dict(
+            **inputs,
+            max_new_tokens=max_new,
+            temperature=temp,
+            top_p=nucleus,
+            do_sample=do_sample,
+            pad_token_id=self._tokenizer.eos_token_id,
+            eos_token_id=self._tokenizer.eos_token_id,
+            **({"streamer": streamer} if streamer is not None else {})
+        )
+
+
+    def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
+            *, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]) -> Iterator[str]:
+        temp, nucleus, max_new, do_sample = self._effective_params(temperature, top_p, max_tokens)
+        LOGGER.info(f"Sampling: max_new_tokens={max_new}, temperature={temp}, top_p={nucleus}")
+        inputs = self._build_inputs(prompt, system_prompt)
+
+        streamer = TextIteratorStreamer(
+            self._tokenizer, skip_prompt=True, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+        generate_kwargs = self._gen_kwargs(inputs, max_new, temp, nucleus, do_sample, streamer=streamer)
+
+        def _worker():
+            with torch.no_grad():
+                self._model.generate(**generate_kwargs)
+
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        try:
+            for text in streamer:
+                if text:
+                    yield text
+        finally:
+            t.join(timeout=0.1)
+
+
+    @timeit
+    def _call(
+        self, prompt:str, system_prompt:Optional[str]=None, stop:Optional[List[str]]=None,
+        *, temperature:Optional[float]=None, top_p:Optional[float]=None, max_tokens:Optional[int]=None
+    ) -> str:
+
+        # definiere stop Kriterium
+
+        # nutze denselben Streamer unter der Haube, aber sammle die Chunks
+        parts = []
+        for chunk in self._stream_chunks(
+            prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens
+        ):
+            parts.append(chunk)
+        return "".join(parts)
+
+
+    def invoke(self, prompt: str, system_prompt: Optional[str] = None,
+               *, temperature: Optional[float] = None, top_p: Optional[float] = None,
+               max_tokens: Optional[int] = None) -> str:
+        return self._call(prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens)
+
+
+    @timeit
+    def stream(self, prompt:str, system_prompt:Optional[str]=None,
+               *, temperature:Optional[float]=None, top_p:Optional[float]=None, max_tokens:Optional[int]=None) -> Iterator[str]:
+        yield from self._stream_chunks(
+            prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens
+        )
