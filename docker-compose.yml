@@ -18,6 +18,8 @@ services:
       - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
       - ./LLMs/Meditron7B/model:/app/model
       - ./LLMs/Apertus8B/base_model:/app/base_model
+      - ./LLMs/Qwen3/model_inference:/app/model_inference
+      - ./LLMs/Qwen3/model_thinking:/app/model_thinking
     gpus: all
     environment:
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
