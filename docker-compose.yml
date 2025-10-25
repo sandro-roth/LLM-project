@@ -25,12 +25,12 @@ services:
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     # === Limits (hinzugefügt) ===
-    cpus: "8"
-    mem_limit: "32g"
-    mem_reservation: "16g"
-    pids_limit: 2048
-    ulimits:
-      nofile: 65536
+    # cpus: "8"
+    # mem_limit: "32g"
+    # mem_reservation: "16g"
+    # pids_limit: 2048
+    # ulimits:
+    #  nofile: 65536
 
   streamlit-web:
     build:
