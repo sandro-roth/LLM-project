@@ -33,6 +33,10 @@ LLM_MODELS = {
     'Apertus8B': {
         'container': 'apertus-inference-app',
         'api_url': f'{API_BASE_URL}/generate_stream'
+    },
+    'Qwen3': {
+        'container': 'qwen-inference-app',
+        'api_url': f'{API_BASE_URL}/generate'
     }
 }
 
