@@ -29,3 +29,20 @@ class ApertusInferenceLLM(LLM):
     @property
     def _llm_type(self) -> str:
         return 'qwen-inference'
+
+
+    def _effective_params(self, temperature:Optional[float], top_p:Optional[float], max_tokens:Optional[int]):
+        """ helper function for _call and stream """
+        temp = self._temperature if temperature is None else float(temperature)
+        nucleus = self._top_p if top_p is None else float(top_p)
+        max_new = self._max_tokens if max_tokens is None else int(max_tokens)
+        return temp, nucleus, max_new, (temp > 0.0)
+
+
+    def _build_inputs(self, prompt: str, system_prompt: Optional[str]):
+        """ helper function for _call and stream """
+        sys_msg = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
+        messages = [sys_msg, {'role': 'user', 'content': prompt}]
+        return self._tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors='pt'
+        ).to(self._model.device)
