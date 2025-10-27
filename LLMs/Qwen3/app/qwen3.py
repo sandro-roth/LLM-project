@@ -20,6 +20,18 @@ class ApertusInferenceLLM(LLM):
                  top_p:float, max_tokens:int, offload_folder:Path):
 
         super().__init__()
+
+        model_id = str(model_path)
+        tok_id = str(tokenizer_path)
+
+        # Config from .env
+        use_4bit = os.getenv('LOAD_IN_4BIT', 'false').lower() == 'true'
+        use_8bit = os.getenv('LOAD_IN_8BIT', 'false').lower() == 'true' and not use_4bit
+        torch_dtype = torch.bfloat16 if os.getenv('TORCH_DTYPE', 'bf16').lower() in ("bf16","bfloat16") else torch.float16
+
+        
+
+
         object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
         object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True))
         object.__setattr__(self, "_temperature", temperature)
