@@ -8,7 +8,9 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
 from app import ApertusInferenceLLM
+from utils import setup_logging
 
+LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Paths can be set in .env
@@ -48,12 +50,15 @@ class ConfigOut(BaseModel):
 
 @app.post("/generate")
 def generate_text(request:PromptRequest):
-    response = llm.invoke(prompt=request.prompt,
-                          system_prompt=request.system_prompt,
-                          temperature=request.temperature,
-                          top_p=request.top_p,
-                          max_tokens=request.max_tokens)
-    return {"response": response}
+    try:
+        response = llm.invoke(prompt=request.prompt,
+                            system_prompt=request.system_prompt,
+                            temperature=request.temperature,
+                            top_p=request.top_p,
+                            max_tokens=request.max_tokens)
+        return {"response": response}
+    except Exception as e:
+        LOGGER.error('Fehler beim /generate')
 
 
 @app.get("/config")
