@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from app import ApertusInferenceLLM
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-model_dir = Path(BASE_DIR / "model_thinking")
+model_dir = Path(BASE_DIR / "model_inference")
 token_dir = model_dir
 
 llm = ApertusInferenceLLM(
