@@ -6,7 +6,7 @@ from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 import torch
 import threading
-import accelearte
+import accelerate
 
 
 from utils import timeit
