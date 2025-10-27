@@ -6,6 +6,7 @@ from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 import torch
 import threading
+import accelearte
 
 
 from utils import timeit
@@ -40,7 +41,7 @@ class ApertusInferenceLLM(LLM):
 
         # device_map + max_memory construct
         n_gpu = torch.cuda.device_count()
-        max_memory = {f"cuda:{i}": f"{per_gpu_gib}GiB" for i in range(n_gpu)}
+        max_memory = {i: f"{per_gpu_gib}GiB" for i in range(n_gpu)}
         max_memory["cpu"] = f"{cpu_gib}GiB"
 
         os.makedirs(offload_folder, exist_ok=True)
