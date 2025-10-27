@@ -1,1 +1,1 @@
-from .qwen3 import ApertusInferenceLLM
+from .qwen3 import QwenInferenceLLM

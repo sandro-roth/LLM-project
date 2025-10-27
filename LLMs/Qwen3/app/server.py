@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
-from app import ApertusInferenceLLM
+from app import QwenInferenceLLM
 from utils import setup_logging
 
 LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
@@ -20,7 +20,7 @@ offload_dir = Path(os.getenv("OFFLOAD_FOLDER") or (BASE_DIR / "offload"))
 offload_dir.mkdir(parents=True, exist_ok=True)
 
 
-llm = ApertusInferenceLLM(
+llm = QwenInferenceLLM(
     model_path=model_dir,
     tokenizer_path=token_dir,
     temperature=0.8,

@@ -21,7 +21,7 @@ def _primary_device_of(model: torch.nn.Module) -> torch.device:
         return p.device
     return torch.device('cpu')
 
-class ApertusInferenceLLM(LLM):
+class QwenInferenceLLM(LLM):
     device: ClassVar[str] = 'auto'
 
     def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float,
