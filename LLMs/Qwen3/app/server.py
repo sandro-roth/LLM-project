@@ -70,3 +70,6 @@ def get_config() -> ConfigOut:
             'max_tokens':llm._max_tokens,
         }
     )
+@app.get('/health')
+def health():
+    return {'status': 'ok'}

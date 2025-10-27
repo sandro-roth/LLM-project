@@ -32,6 +32,11 @@ services:
       - LOAD_IN_4BIT=${LOAD_IN_4BIT}
       - LOAD_IN_8BIT=${LOAD_IN_8BIT}
       - OFFLOAD_FOLDER=/app/offload
+    healthcheck:
+      test: ["CMD-SHELL","curl -sf http://localhost:8100/health || curl -sf http://localhost:8100/config || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
 
     # === Limits (hinzugefügt) ===
     #cpus: "8"
@@ -42,6 +47,9 @@ services:
     #  nofile: 65536
 
   streamlit-web:
+    depends_on:
+      inference:
+        condition: service_healthy
     build:
       context: .
       dockerfile: webinterface/Dockerfile
