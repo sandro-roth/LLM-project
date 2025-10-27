@@ -32,7 +32,7 @@ class ApertusInferenceLLM(LLM):
         # Config from .env
         use_4bit = os.getenv('LOAD_IN_4BIT', 'false').lower() == 'true'
         use_8bit = os.getenv('LOAD_IN_8BIT', 'false').lower() == 'true' and not use_4bit
-        torch_dtype = torch.bfloat16 if os.getenv('TORCH_DTYPE', 'bf16').lower() in ("bf16","bfloat16") else torch.float16
+        dtype = torch.bfloat16 if os.getenv('TORCH_DTYPE', 'bf16').lower() in ("bf16","bfloat16") else torch.float16
 
         # Memory budget
         per_gpu_gib = int(os.getenv('MAX_VRAM_PER_GPU', '45'))
@@ -53,7 +53,7 @@ class ApertusInferenceLLM(LLM):
         elif use_8bit:
             pass
         else:
-            load_kwargs['torch_dtype'] = torch_dtype
+            load_kwargs['dtype'] = dtype
 
         # Full model downloaded already make sure to only local processing
         local_only = os.getenv('HF_LOCAL_ONLY', 'true').lower() == 'true'
