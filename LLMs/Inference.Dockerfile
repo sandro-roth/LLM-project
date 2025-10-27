@@ -22,6 +22,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Logs dir (service subdir created in targets)
 RUN mkdir -p "$LOG_DIR" /app/offload && chmod -R 777 "$LOG_DIR" /app/offload
 ENV OFFLOAD_FOLDER=/app/offload
+ENTRYPOINT ["/usr/bin/tini","-g","--"]
 
 # --- Optional CA certs if proxy active ---
 RUN set -eux; \
