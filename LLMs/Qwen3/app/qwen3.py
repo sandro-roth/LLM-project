@@ -111,7 +111,7 @@ class QwenInferenceLLM(LLM):
         )
         # for shared Models specific device
         primary = _primary_device_of(self._model)
-        return {k: v.to(primary) for k, v in inputs.times()}
+        return {k: v.to(primary) for k, v in inputs.items()}
 
 
     def _gen_kwargs(self, inputs, max_new: int, temp: float, nucleus: float, do_sample: bool, *, streamer=None):
