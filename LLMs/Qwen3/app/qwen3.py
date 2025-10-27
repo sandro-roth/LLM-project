@@ -15,7 +15,7 @@ from utils import setup_logging
 LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
 
 def _primary_device_of(model: torch.nn.Module) -> torch.device:
-    for p in model.parameter():
+    for p in model.parameters():
         return p.device
     return torch.device('cpu')
 
