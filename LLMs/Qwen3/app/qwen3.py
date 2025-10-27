@@ -1,5 +1,6 @@
 from typing import Optional, List, ClassVar, Iterator
 from pathlib import Path
+import os
 
 from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
@@ -14,7 +15,10 @@ LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
 
 class ApertusInferenceLLM(LLM):
     device: ClassVar[str] = 'auto'
-    def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float, top_p:float, max_tokens:int):
+
+    def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float,
+                 top_p:float, max_tokens:int, offload_folder:Path):
+
         super().__init__()
         object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
         object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True))
