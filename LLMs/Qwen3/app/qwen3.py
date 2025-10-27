@@ -13,6 +13,11 @@ from utils import setup_logging
 
 LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
 
+def _primary_device_of(model: torch.nn.Module) -> torch.device:
+    for p in model.parameter():
+        return p.device
+    return torch.device('cpu')
+
 class ApertusInferenceLLM(LLM):
     device: ClassVar[str] = 'auto'
 
@@ -37,7 +42,6 @@ class ApertusInferenceLLM(LLM):
         n_gpu = torch.cuda.device_count()
         max_memory = {f"cuda:{i}": f"{per_gpu_gib}GiB" for i in range(n_gpu)}
         max_memory["cpu"] = f"{cpu_gib}GiB"
-        LOGGER.INFO(f'Memory usage {max_memory}')
 
         os.makedirs(offload_folder, exist_ok=True)
 
@@ -72,6 +76,14 @@ class ApertusInferenceLLM(LLM):
         object.__setattr__(self, "_systemmessage", {
             'role': 'system', 'content':'Du bist ein präziser, detailorientierter medizinischer Schreibassistent.'
         })
+
+        # Log
+        try:
+            dev = _primary_device_of(self._model)
+            LOGGER.info(f"Model primary device: {dev}; n_gpu={n_gpu}; max_memory={max_memory}")
+        except Exception as e:
+            LOGGER.warning(f"Could not infer primary device: {e}")
+
 
     @property
     def _llm_type(self) -> str:
