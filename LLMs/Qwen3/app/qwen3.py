@@ -8,13 +8,15 @@ from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 import torch
 import threading
-import accelerate
-
+from accelerate import cpu_offload
 
 from utils import timeit
 from utils import setup_logging
 
 LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.set_float32_matmul_precision("high")
+
 
 def _primary_device_of(model: torch.nn.Module) -> torch.device:
     for p in model.parameters():
@@ -22,7 +24,7 @@ def _primary_device_of(model: torch.nn.Module) -> torch.device:
     return torch.device('cpu')
 
 class QwenInferenceLLM(LLM):
-    device: ClassVar[str] = 'auto'
+    #device: ClassVar[str] = 'auto'
 
     def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float,
                  top_p:float, max_tokens:int, offload_folder:Path):
@@ -65,9 +67,9 @@ class QwenInferenceLLM(LLM):
         tokenizer = AutoTokenizer.from_pretrained(tok_id, local_files_only=local_only, use_fast=True, trust_remote_code=True,)
 
         # Model with offload
-        model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only,
-            device_map="auto", max_memory=max_memory, offload_folder=str(offload_folder),
-            low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
+        model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only, device_map='cpu',
+                                                     low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
+        cpu_offload(model, device="cuda:0", offload_buffers=True, pin_memory=True)
         model.eval()
 
         object.__setattr__(self, "_model", model)
@@ -109,9 +111,7 @@ class QwenInferenceLLM(LLM):
             messages, add_generation_prompt=True,
             tokenize=True, return_dict=True,return_tensors='pt'
         )
-        # for shared Models specific device
-        primary = _primary_device_of(self._model)
-        return {k: v.to(primary) for k, v in inputs.items()}
+        return inputs
 
 
     def _gen_kwargs(self, inputs, max_new: int, temp: float, nucleus: float, do_sample: bool, *, streamer=None):
@@ -121,6 +121,7 @@ class QwenInferenceLLM(LLM):
             temperature=temp,
             top_p=nucleus,
             do_sample=do_sample,
+            use_cache=True,
             pad_token_id=self._tokenizer.eos_token_id,
             eos_token_id=self._tokenizer.eos_token_id,
             **({"streamer": streamer} if streamer is not None else {})
