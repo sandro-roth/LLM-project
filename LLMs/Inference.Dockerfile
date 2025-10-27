@@ -147,4 +147,4 @@ COPY LLMs/Qwen3/app /app/app
 # normalize to a single PORT (default 8100)
 ENV PORT=8100
 EXPOSE 8100
-CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 90"]
+CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120 --log-level debug --access-log"]
