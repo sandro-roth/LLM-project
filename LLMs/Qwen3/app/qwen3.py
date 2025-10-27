@@ -29,7 +29,17 @@ class ApertusInferenceLLM(LLM):
         use_8bit = os.getenv('LOAD_IN_8BIT', 'false').lower() == 'true' and not use_4bit
         torch_dtype = torch.bfloat16 if os.getenv('TORCH_DTYPE', 'bf16').lower() in ("bf16","bfloat16") else torch.float16
 
-        
+        # Memory budget
+        per_gpu_gib = int(os.getenv('MAX_VRAM_PER_GPU', '45'))
+        cpu_gib = int(os.getenv('CPU_RAM_BUDGET_BIG', '180'))
+
+        # device_map + max_memory construct
+        n_gpu = torch.cuda.device_count()
+        max_memory = {f"cuda:{i}": f"{per_gpu_gib}GiB" for i in range(n_gpu)}
+        max_memory["cpu"] = f"{cpu_gib}GiB"
+        LOGGER.INFO(f'Memory usage {max_memory}')
+
+        os.makedirs(offload_folder, exist_ok=True)
 
 
         object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
