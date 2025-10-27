@@ -24,6 +24,14 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HF_LOCAL_ONLY=${HF_LOCAL_ONLY}
+      - TORCH_DTYPE=${TORCH_DTYPE}
+      - MAX_VRAM_PER_GPU=${MAX_VRAM_PER_GPU}
+      - CPU_RAM_BUDGET_GIB=${CPU_RAM_BUDGET_GIB}
+      - LOAD_IN_4BIT=${LOAD_IN_4BIT}
+      - LOAD_IN_8BIT=${LOAD_IN_8BIT}
+      - OFFLOAD_FOLDER=/app/offload
+
     # === Limits (hinzugefügt) ===
     #cpus: "8"
     #mem_limit: "32g"

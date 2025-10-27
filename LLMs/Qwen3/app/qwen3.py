@@ -36,7 +36,7 @@ class ApertusInferenceLLM(LLM):
 
         # Memory budget
         per_gpu_gib = int(os.getenv('MAX_VRAM_PER_GPU', '45'))
-        cpu_gib = int(os.getenv('CPU_RAM_BUDGET_BIG', '180'))
+        cpu_gib = int(os.getenv('CPU_RAM_BUDGET_GIB', '180'))
 
         # device_map + max_memory construct
         n_gpu = torch.cuda.device_count()
