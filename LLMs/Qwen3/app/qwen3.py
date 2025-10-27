@@ -1,5 +1,7 @@
+from queue import Queue
 from typing import Optional, List, ClassVar, Iterator
 from pathlib import Path
+from queue import Queue, Empty
 import os
 
 from langchain_core.language_models import LLM
@@ -136,16 +138,36 @@ class ApertusInferenceLLM(LLM):
         )
         generate_kwargs = self._gen_kwargs(inputs, max_new, temp, nucleus, do_sample, streamer=streamer)
 
+        err_q: Queue[BaseException] = Queue(maxsize=1)
         def _worker():
-            with torch.no_grad():
-                self._model.generate(**generate_kwargs)
+            try:
+                with torch.no_grad():
+                    self._model.generate(**generate_kwargs)
+            except BaseException as e:
+                err_q.put(e)
 
         t = threading.Thread(target=_worker, daemon=True)
         t.start()
         try:
-            for text in streamer:
-                if text:
-                    yield text
+            while True:
+                try:
+                    e = err_q.get_nowait()
+                    raise e
+                except Empty:
+                    pass
+
+                chunk = next(streamer, None)
+                if chunk is None:
+                    break
+                if chunk:
+                    yield chunk
+
+            try:
+                e = err_q.get_nowait()
+                raise e
+            except Empty:
+                pass
+
         finally:
             t.join(timeout=0.1)
 
