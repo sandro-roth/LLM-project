@@ -1,5 +1,6 @@
 from typing import Optional, Generator
 from pathlib import Path
+import os
 import json
 
 from pydantic import BaseModel
@@ -9,15 +10,21 @@ from fastapi.responses import StreamingResponse
 from app import ApertusInferenceLLM
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-model_dir = Path(BASE_DIR / "model_inference")
-token_dir = model_dir
+
+# Paths can be set in .env
+model_dir = Path(os.getenv('MODEL_DIR'), BASE_DIR / 'model_inference')
+token_dir = Path(os.getenv("TOKEN_DIR", str(model_dir)))
+offload_dir = Path(os.getenv("OFFLOAD_FOLDER", BASE_DIR / "offload"))
+offload_dir.mkdir(parents=True, exist_ok=True)
+
 
 llm = ApertusInferenceLLM(
     model_path=model_dir,
     tokenizer_path=token_dir,
     temperature=0.8,
     top_p=0.9,
-    max_tokens=200
+    max_tokens=200,
+    offload_folder=offload_dir
 )
 
 app = FastAPI(
