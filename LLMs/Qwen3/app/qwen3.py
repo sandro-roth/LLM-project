@@ -102,9 +102,14 @@ class ApertusInferenceLLM(LLM):
         """ helper function for _call and stream """
         sys_msg = {'role': 'system', 'content': system_prompt} if system_prompt else self._systemmessage
         messages = [sys_msg, {'role': 'user', 'content': prompt}]
-        return self._tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors='pt'
-        ).to(self._model.device)
+        inputs = self._tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True,
+            tokenize=True, return_dict=True,return_tensors='pt'
+        )
+        # for shared Models specific device
+        primary = _primary_device_of(self._model)
+        return {k: v.to(primary) for k, v in inputs.times()}
+
 
     def _gen_kwargs(self, inputs, max_new: int, temp: float, nucleus: float, do_sample: bool, *, streamer=None):
         return dict(
