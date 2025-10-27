@@ -41,6 +41,26 @@ class ApertusInferenceLLM(LLM):
 
         os.makedirs(offload_folder, exist_ok=True)
 
+        # ------------------ Quantization --------------------------
+        nb_config = None
+        load_kwargs = {}
+        if use_4bit:
+            pass
+        elif use_8bit:
+            pass
+        else:
+            load_kwargs['torch_dtype'] = torch_dtype
+
+        # Full model downloaded already make sure to only local processing
+        local_only = os.getenv('HF_LOCAL_ONLY', 'true').lower() == 'true'
+
+        # Tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(tok_id, local_files_only=local_only, use_fast=True, trust_remote_code=True,)
+
+        # Model with offload
+        model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only,
+            device_map="auto", max_memory=max_memory, offload_folder=str(offload_folder),
+            low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs,)
 
         object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
         object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True))
