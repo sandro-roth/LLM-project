@@ -60,10 +60,11 @@ class ApertusInferenceLLM(LLM):
         # Model with offload
         model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only,
             device_map="auto", max_memory=max_memory, offload_folder=str(offload_folder),
-            low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs,)
+            low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
+        model.eval()
 
-        object.__setattr__(self, "_model", AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).to(self.device))
-        object.__setattr__(self, "_tokenizer", AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True))
+        object.__setattr__(self, "_model", model)
+        object.__setattr__(self, "_tokenizer", tokenizer)
         object.__setattr__(self, "_temperature", temperature)
         object.__setattr__(self, "_top_p", top_p)
         object.__setattr__(self, "_max_tokens", max_tokens)
