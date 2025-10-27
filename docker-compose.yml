@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: LLMs/Inference.Dockerfile
+      target: ${DOCKER_INFERENCE}
       args:
         DOCKER_INFERENCE: ${DOCKER_INFERENCE}
         USE_PROXY: ${USE_PROXY}
