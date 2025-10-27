@@ -12,9 +12,9 @@ from app import ApertusInferenceLLM
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Paths can be set in .env
-model_dir = Path(os.getenv('MODEL_DIR'), BASE_DIR / 'model_inference')
+model_dir = Path(os.getenv('MODEL_DIR') or (BASE_DIR / 'model_inference'))
 token_dir = Path(os.getenv("TOKEN_DIR", str(model_dir)))
-offload_dir = Path(os.getenv("OFFLOAD_FOLDER", BASE_DIR / "offload"))
+offload_dir = Path(os.getenv("OFFLOAD_FOLDER") or (BASE_DIR / "offload"))
 offload_dir.mkdir(parents=True, exist_ok=True)
 
 
