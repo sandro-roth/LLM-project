@@ -20,13 +20,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 # Logs dir (service subdir created in targets)
-RUN mkdir -p "$LOG_DIR" && chmod -R 777 "$LOG_DIR"
+RUN mkdir -p "$LOG_DIR" /app/offload && chmod -R 777 "$LOG_DIR" /app/offload
+ENV OFFLOAD_FOLDER=/app/offload
 
 # --- Optional CA certs if proxy active ---
 RUN set -eux; \
     if [ "$USE_PROXY" = "true" ]; then \
         apt-get update; \
-        apt-get install -y --no-install-recommends ca-certificates; \
+        apt-get install -y --no-install-recommends curl ca-certificates tini; \
         rm -rf /var/lib/apt/lists/*; \
         mkdir -p /usr/local/share/ca-certificates; \
         echo "ca-certificates installiert"; \
