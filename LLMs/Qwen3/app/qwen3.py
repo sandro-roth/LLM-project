@@ -94,7 +94,7 @@ class QwenInferenceLLM(LLM):
         if load_checkpoint_and_dispatch and init_empty_weights and ACC_VERSION >= version.parse('0.26.0'):
             config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
             with init_empty_weights():
-                model = AutoModelForCausalLM.from_config(config, trust_remote=True, **load_kwargs)
+                model = AutoModelForCausalLM.from_config(config, trust_remote_code=True, **load_kwargs)
 
             # qwen classes are named differently depending on release (few candidates)
             no_split = ["Qwen2DecoderLayer", "QwenBlock", "TransformerLayer", "Block"]
