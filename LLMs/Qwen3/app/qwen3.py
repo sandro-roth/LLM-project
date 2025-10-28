@@ -6,7 +6,7 @@ from packaging import version
 import os
 
 from langchain_core.language_models import LLM
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer, AutoConfig
 import torch
 import threading
 
@@ -15,14 +15,20 @@ try:
     ACC_VERSION = version.parse(getattr(accelerate, '__version__', '0.0.0'))
 except Exception:
     ACC_VERSION = version.parse('0.0.0')
+#
+# try:
+#     from accelerate.hooks import cpu_offload as _cpu_offload
+# except Exception:
+#     try:
+#         from accelerate import cpu_offload as _cpu_offload
+#     except Exception:
+#         _cpu_offload = None
 
 try:
-    from accelerate.hooks import cpu_offload as _cpu_offload
+    from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 except Exception:
-    try:
-        from accelerate import cpu_offload as _cpu_offload
-    except Exception:
-        _cpu_offload = None
+    init_empty_weights = None
+    load_checkpoint_and_dispatch = None
 
 from utils import timeit
 from utils import setup_logging
@@ -80,22 +86,55 @@ class QwenInferenceLLM(LLM):
         tokenizer = AutoTokenizer.from_pretrained(tok_id, local_files_only=local_only, use_fast=True, trust_remote_code=True,)
 
         # Model with offload
-        model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only, device_map='cpu',
-                                                     low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
-        model.to('cpu')
-        model.eval()
+        # model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only, device_map='cpu',
+        #                                              low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
+        # model.to('cpu')
+        # model.eval()
 
-        if _cpu_offload is None:
-            LOGGER.warning('accelerate.cpu_offload nicht gefunden!')
+        if load_checkpoint_and_dispatch and init_empty_weights and ACC_VERSION >= version.parse('0.26.0'):
+            config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
+            with init_empty_weights():
+                model = AutoModelForCausalLM.from_config(config, trust_remote=True, **load_kwargs)
+
+            # qwen classes are named differently depending on release (few candidates)
+            no_split = ["Qwen2DecoderLayer", "QwenBlock", "TransformerLayer", "Block"]
+
+            model = load_checkpoint_and_dispatch(
+                model,
+                model_id,
+                device_map={'': 'cpu'},
+                no_split_modue_classes=no_split,
+                dtype=load_kwargs.get('dtype', None),
+                offload_folder=str(offload_folder),
+                offload_state_dict=True,
+                max_memory=max_memory,
+                sequential_cpu_offload=True
+            )
+            model.eval()
+
         else:
-            exec_device = torch.device('cuda:0')
-            try:
-                _cpu_offload(model, exec_device, offload_buffers=True, pin_memory=True)
-            except TypeError:
-                try:
-                    _cpu_offload(model, exec_device)
-                except TypeError:
-                    _cpu_offload(model, 0)
+            model = AutoModelForCausalLM.from_pretrained(
+                model_id,
+                local_files_only=local_only,
+                device_map="auto",
+                max_memory=max_memory,
+                offload_folder=str(offload_folder),
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                **load_kwargs
+            )
+            model.eval()
+        # if _cpu_offload is None:
+        #     LOGGER.warning('accelerate.cpu_offload nicht gefunden!')
+        # else:
+        #     exec_device = torch.device('cuda:0')
+        #     try:
+        #         _cpu_offload(model, exec_device, offload_buffers=True, pin_memory=True)
+        #     except TypeError:
+        #         try:
+        #             _cpu_offload(model, exec_device)
+        #         except TypeError:
+        #             _cpu_offload(model, 0)
 
         object.__setattr__(self, "_model", model)
         object.__setattr__(self, "_tokenizer", tokenizer)
