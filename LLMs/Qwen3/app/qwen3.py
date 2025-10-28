@@ -8,7 +8,10 @@ from langchain_core.language_models import LLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 import torch
 import threading
-from accelerate import cpu_offload
+try:
+    from accelerate.hooks import cpu_offload
+except:
+    from accelerate import cpu_offload
 
 from utils import timeit
 from utils import setup_logging
@@ -24,7 +27,6 @@ def _primary_device_of(model: torch.nn.Module) -> torch.device:
     return torch.device('cpu')
 
 class QwenInferenceLLM(LLM):
-    #device: ClassVar[str] = 'auto'
 
     def __init__(self, model_path:Path, tokenizer_path:Path, temperature:float,
                  top_p:float, max_tokens:int, offload_folder:Path):
@@ -69,7 +71,11 @@ class QwenInferenceLLM(LLM):
         # Model with offload
         model = AutoModelForCausalLM.from_pretrained(model_id, local_files_only=local_only, device_map='cpu',
                                                      low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
-        cpu_offload(model, device="cuda:0", offload_buffers=True, pin_memory=True)
+        exec_device = torch.device('cuda:0')
+        try:
+            cpu_offload(model, device=exec_device, offload_buffers=True, pin_memory=True)
+        except TypeError:
+            cpu_offload(model, device=exec_device)
         model.eval()
 
         object.__setattr__(self, "_model", model)
