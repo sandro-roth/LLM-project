@@ -73,9 +73,9 @@ class QwenInferenceLLM(LLM):
                                                      low_cpu_mem_usage=True, trust_remote_code=True, **load_kwargs)
         exec_device = torch.device('cuda:0')
         try:
-            cpu_offload(model, device=exec_device, offload_buffers=True, pin_memory=True)
+            cpu_offload(model, exec_device, offload_buffers=True, pin_memory=True)
         except TypeError:
-            cpu_offload(model, device=exec_device)
+            cpu_offload(model, exec_device)
         model.eval()
 
         object.__setattr__(self, "_model", model)
