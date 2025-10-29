@@ -1,4 +1,4 @@
-transformers>=4.44
+transformers>=4.44.2
 fastapi
 pydantic
 uvicorn
