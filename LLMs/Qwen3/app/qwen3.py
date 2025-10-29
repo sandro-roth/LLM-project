@@ -34,6 +34,9 @@ from utils import timeit
 from utils import setup_logging
 
 LOGGER = setup_logging(app_name='qwen-inference', to_stdout=True, retention=30)
+LOGGER.info("VERSIONS torch=%s accelerate=%s",
+            getattr(torch,'__version__','?'),
+            getattr(accelerate,'__version__','?'))
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.set_float32_matmul_precision("high")
 
@@ -103,7 +106,7 @@ class QwenInferenceLLM(LLM):
                 model,
                 model_id,
                 device_map={'': 'cpu'},
-                no_split_modue_classes=no_split,
+                no_split_module_classes=no_split,
                 dtype=load_kwargs.get('dtype', None),
                 offload_folder=str(offload_folder),
                 offload_state_dict=True,
