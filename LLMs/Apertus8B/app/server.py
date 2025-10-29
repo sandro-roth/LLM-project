@@ -87,3 +87,6 @@ def get_config() -> ConfigOut:
         }
     )
 
+@app.get('/health')
+def health():
+    return {'status': 'ok'}
