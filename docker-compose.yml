@@ -21,7 +21,13 @@ services:
       - ./LLMs/Apertus8B/base_model:/app/base_model
       - ./LLMs/Qwen3/model_inference:/app/model_inference
       - ./LLMs/Qwen3/model_thinking:/app/model_thinking
-    gpus: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ "${NVIDIA_VISIBLE_DEVICES}" ]
+              capabilities: [ "gpu" ]
     environment:
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES}
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
@@ -70,9 +76,9 @@ services:
       - STREAMLIT_MODEL_SELECT=${STREAMLIT_MODEL_SELECT}
 
     # === Limits (hinzugefügt) ===
-    cpus: "2"
-    mem_limit: "2g"
-    mem_reservation: "1g"
-    pids_limit: 512
-    ulimits:
-      nofile: 8192
+#    cpus: "2"
+#    mem_limit: "2g"
+#    mem_reservation: "1g"
+#    pids_limit: 512
+#    ulimits:
+#      nofile: 8192
