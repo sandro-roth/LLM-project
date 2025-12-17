@@ -14,7 +14,7 @@ services:
     container_name: llm-inference
     ports:
       - "8100:8100"
-    restart: "no"
+    restart: unless-stopped
     volumes:
       - ./LLMs/Mistral7B/mistral-7B-Instruct-v0.3:/app/mistral-7B-Instruct-v0.3
       - ./LLMs/Meditron7B/model:/app/model
@@ -68,6 +68,7 @@ services:
     container_name: streamlit-web-app
     ports:
       - "8501:8501"
+    restart: unless-stopped
     environment:
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_SERVER_HEADLESS=true
