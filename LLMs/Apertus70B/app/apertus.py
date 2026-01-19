@@ -62,3 +62,12 @@ class LLM_inference(LLM):
                 if text:
                     yield text
 
+    @timeit
+    def _call(self, prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None,
+              *, temperature: Optional[float] = None, top_p: Optional[float] = None,
+              max_tokens: Optional[int] = None) -> str:
+        parts = []
+        for chunk in self._stream_chunks(prompt, system_prompt, temperature=temperature,
+                                         top_p=top_p, max_tokens=max_tokens):
+            parts.append(chunk)
+        return "".join(parts)
