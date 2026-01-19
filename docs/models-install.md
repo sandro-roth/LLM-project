@@ -9,7 +9,7 @@ Unter der `Ubuntu 24.04 LTS` wir dies folgendermassen erreicht.
 
 ### Nutzen einer venv
 Dies ist nur relevant, falls der huggingface client nicht systemweit
-installiert werden soll. Sollte dies keine Spiele fahre direkt for mit 
+installiert werden soll. Sollte dies keine Rolle spielen fahre direkt for mit 
 [Install huggingface_client](#install-huggingface_client)
 
 ```shell
