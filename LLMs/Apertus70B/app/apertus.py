@@ -23,4 +23,14 @@ class LLM_inference(LLM):
         object.__setattr__(self, '_max_tokens', int(max_tokens))
         object.__setattr__(self, '_systemmessage', "Du bist ein präziser, detailorientierter medizinischer Schreibassistent.")
 
+    @property
+    def _llm_type(self):
+        return "apertus70-llama_cpp"
 
+    def _effective_params(self, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]):
+        temp = self._temperature if temperature is None else float(temperature)
+        nucleus = self._top_p if top_p is None else float(top_p)
+        max_new = self._max_tokens if max_tokens is None else int(max_tokens)
+        do_sample = temp > 0.0
+        return temp, nucleus, max_new, do_sample
+    
