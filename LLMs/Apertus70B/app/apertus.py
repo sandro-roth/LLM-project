@@ -1,4 +1,4 @@
-from typing import Optional, List, ClassVar
+from typing import Optional, List, ClassVar, Iterator
 from pathlib import Path
 import threading
 
@@ -43,4 +43,20 @@ class LLM_inference(LLM):
             f"[USER]\n{user_text}\n[/USER]\n\n"
             f"[ASSISTANT]\n"
         )
-    
+
+    def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
+                       *, temperature: Optional[float], top_p: Optional[float],
+                       max_tokens: Optional[int]) -> Iterator[str]:
+        temp, nucleus, max_new, _ = self._effective_params(temperature, top_p, max_tokens)
+        full_prompt = self._build_prompt(prompt, system_prompt)
+
+        LOGGER.info(f'Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}')
+
+        # Single GPU, big model: serialize generations to avoid thrashing
+        with self._lock:
+            for chunk in self._llm(full_prompt, max_tokens=max_new, temperature=temp,
+                    top_p=nucleus, stream=True,
+            ):
+                text = chunk["choices"][0]["text"] or ""
+                if text:
+                    yield text
