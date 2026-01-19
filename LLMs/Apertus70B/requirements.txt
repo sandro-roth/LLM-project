@@ -1,0 +1,4 @@
+langchain_community
+langchain
+llama-cpp-python
+threaded
