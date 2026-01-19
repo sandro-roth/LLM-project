@@ -22,6 +22,7 @@ class LLM_inference(LLM):
         object.__setattr__(self, '_top_p', float(top_p))
         object.__setattr__(self, '_max_tokens', int(max_tokens))
         object.__setattr__(self, '_systemmessage', "Du bist ein präziser, detailorientierter medizinischer Schreibassistent.")
+        object.__setattr__(self, "_lock", threading.Lock())
 
     @property
     def _llm_type(self):
@@ -60,3 +61,4 @@ class LLM_inference(LLM):
                 text = chunk["choices"][0]["text"] or ""
                 if text:
                     yield text
+
