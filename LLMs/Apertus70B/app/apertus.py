@@ -33,4 +33,14 @@ class LLM_inference(LLM):
         max_new = self._max_tokens if max_tokens is None else int(max_tokens)
         do_sample = temp > 0.0
         return temp, nucleus, max_new, do_sample
+
+    def _build_prompt(self, prompt: str, system_prompt: Optional[str]) -> str:
+        sys_text = (system_prompt or self._systemmessage).strip()
+        user_text = (prompt or "").strip()
+
+        return (
+            f"[SYSTEM]\n{sys_text}\n[/SYSTEM]\n\n"
+            f"[USER]\n{user_text}\n[/USER]\n\n"
+            f"[ASSISTANT]\n"
+        )
     
