@@ -192,4 +192,4 @@ COPY LLMs/Apertus70B/app /app/app
 
 ENV PORT=8100
 EXPOSE 8100
-CMD ["sh","-c","uvicorn app.server_70b:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120"]
+CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120"]
