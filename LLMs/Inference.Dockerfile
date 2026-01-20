@@ -187,10 +187,12 @@ RUN mkdir -p "$LOG_DIR/apertus70b-inference" && chmod -R 777 "$LOG_DIR/apertus70
 
 ENV CMAKE_ARGS="-DGGML_CUDA=on" \
     FORCE_CMAKE=1 \
-    LLAMA_CPP_BUILD_TYPE=Release
+    LLAMA_CPP_BUILD_TYPE=Release \
+    CC=gcc \
+    CXX=g++
 
 COPY LLMs/Apertus70B/requirements.txt /app/requirements.txt
-RUN python3 -m pip install --upgrade pip && \
+RUN python3 -m pip install --no-cache-dir -U pip setuptools wheel && \
     pip install --no-cache-dir -r /app/requirements.txt
 
 COPY utils/ /app/utils/
