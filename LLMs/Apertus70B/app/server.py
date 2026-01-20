@@ -1,12 +1,11 @@
 from typing import Optional, Generator
 from pathlib import Path
 
+from pydantic import BaseModel
 from fastapi import FastAPI
 
 from app import LLM_inference
-from sympy.physics.units import temperature
 
-from LLMs.Mistral7B.app.server import model_path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 model_file = Path(BASE_DIR / 'model8bit' / 'swiss-ai_Apertus-70B-Instruct-2509-Q8_0')
@@ -25,3 +24,15 @@ app = FastAPI(
     redoc_url=None,
     openapi_url=None
 )
+
+class PromptRequest(BaseModel):
+    prompt: str
+    system_prompt: Optional[str] = None
+    temperature: Optional[float] = None
+    top_p: Optional[float] = None
+    max_tokens: Optional[int] = None
+
+class ConfigOut(BaseModel):
+    model: str = "Apertus70B-8Bit"
+    defaults: dict
+
