@@ -1,6 +1,8 @@
 from typing import Optional, Generator
 from pathlib import Path
 
+from fastapi import FastAPI
+
 from app import LLM_inference
 from sympy.physics.units import temperature
 
@@ -16,4 +18,10 @@ llm = LLM_inference(
     max_tokens=200,
     n_ctx=8192,
     n_gpu_layers=-1
+)
+
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
 )
