@@ -21,6 +21,7 @@ services:
       - ./LLMs/Apertus8B/base_model:/app/base_model
       - ./LLMs/Qwen3/model_inference:/app/model_inference
       - ./LLMs/Qwen3/model_thinking:/app/model_thinking
+      - ./LLMs/Apertus70B/model8bit:/app/model8bit
     deploy:
       resources:
         reservations:
