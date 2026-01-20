@@ -81,7 +81,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-dev \
-    build-essential \
+    build-essential cmake ninja-build git\
     ca-certificates curl tini \
     && rm -rf /var/lib/apt/lists/*
 
@@ -184,6 +184,10 @@ CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1
 FROM base_cuda AS apertus70b
 
 RUN mkdir -p "$LOG_DIR/apertus70b-inference" && chmod -R 777 "$LOG_DIR/apertus70b-inference"
+
+ENV CMAKE_ARGS="-DGGML_CUDA=on" \
+    FORCE_CMAKE=1 \
+    LLAMA_CPP_BUILD_TYPE=Release
 
 COPY LLMs/Apertus70B/requirements.txt /app/requirements.txt
 RUN python3 -m pip install --upgrade pip && \
