@@ -17,7 +17,7 @@ class LLM_inference(LLM):
                  n_ctx: int = 8192, n_gpu_layers: int = -1):
         super().__init__()
         object.__setattr__(self, '_llm', Llama(model_path=str(model_path), n_ctx=int(n_ctx),
-                                               n_gpu_layers=int(n_gpu_layers), verbose=False))
+                                               n_gpu_layers=int(n_gpu_layers), verbose=True))
         object.__setattr__(self, '_temperature', float(temperature))
         object.__setattr__(self, '_top_p', float(top_p))
         object.__setattr__(self, '_max_tokens', int(max_tokens))
