@@ -1,5 +1,6 @@
 from typing import Optional, Generator
 from pathlib import Path
+import json
 
 from pydantic import BaseModel
 from fastapi import FastAPI
@@ -46,3 +47,6 @@ def generate_text(request: PromptRequest):
         max_tokens=request.max_tokens
     )
     return {"response": response}
+
+def sse_event(data: dict) -> str:
+    return f'data: {json.dumps(data, ensure_ascii=False)}\n\n'
