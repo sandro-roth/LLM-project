@@ -79,3 +79,16 @@ def generate_text_stream(request: PromptRequest):
             "X-Accel-Buffering": "no"
         }
     )
+@app.get("/config")
+def get_config() -> ConfigOut:
+    return ConfigOut(
+        defaults={
+            "temperature": llm._temperature,
+            "top_p": llm._top_p,
+            "max_tokens": llm._max_tokens
+        }
+    )
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
