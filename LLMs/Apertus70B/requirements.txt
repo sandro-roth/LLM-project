@@ -2,3 +2,6 @@ langchain_community
 langchain
 llama-cpp-python
 threaded
+pydantic
+fastapi
+uvicorn
