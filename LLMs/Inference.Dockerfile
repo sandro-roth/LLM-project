@@ -1,6 +1,8 @@
-# syntax=docker/dockerfile:1.6
 ARG DOCKER_INFERENCE=mistral
-# ---------- Base ----------
+
+########################################
+# ---------- Base (CPU / slim) ----------
+########################################
 FROM python:3.11-slim AS base
 
 # --- Proxy (Build-Args) ---
@@ -8,7 +10,6 @@ ARG USE_PROXY=false
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG NO_PROXY
-
 
 # --- Logging (Build-Arg → ENV) ---
 ARG LOG_DIR=/var/log/llm
@@ -19,9 +20,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
-# Logs dir (service subdir created in targets)
+# Logs + offload
 RUN mkdir -p "$LOG_DIR" /app/offload && chmod -R 777 "$LOG_DIR" /app/offload
 ENV OFFLOAD_FOLDER=/app/offload
+
+# tini
 ENTRYPOINT ["/usr/bin/tini","-g","--"]
 
 # --- Optional CA certs if proxy active ---
@@ -36,17 +39,17 @@ RUN set -eux; \
         echo "Proxy aus -> keine CA Installation"; \
     fi
 
-# --- Copy any provided certs, register if present ---
+# --- Copy certs if present ---
 COPY certs/ /usr/local/share/ca-certificates/
 RUN set -eu; \
     if find /usr/local/share/ca-certificates -type f -name '*.crt' -print -quit | grep -q .; then \
         update-ca-certificates; \
         echo "CA Store aktualisiert"; \
     else \
-        echo "Keine .crt im Build Kontext -> nichts zu registrieren"; \
+        echo "Keine .crt im Build Kontext"; \
     fi
 
-# --- Pip config (proxy only if active) ---
+# --- Pip config ---
 RUN set -eux; \
     printf "[global]\ntrusted-host = pypi.org\n    files.pythonhosted.org\n" > /etc/pip.conf; \
     if [ "$USE_PROXY" = "true" ]; then \
@@ -58,95 +61,135 @@ RUN set -eux; \
 
 WORKDIR /app
 
-# ---------- Target: Mistral ----------
+########################################
+# ---------- Base (CUDA) ----------------
+########################################
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04 AS base_cuda
+
+ARG USE_PROXY=false
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+
+ARG LOG_DIR=/var/log/llm
+ENV LOG_DIR=${LOG_DIR}
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip ca-certificates curl tini \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN mkdir -p "$LOG_DIR" /app/offload && chmod -R 777 "$LOG_DIR" /app/offload
+ENV OFFLOAD_FOLDER=/app/offload
+
+ENTRYPOINT ["/usr/bin/tini","-g","--"]
+
+# --- CA certs ---
+COPY certs/ /usr/local/share/ca-certificates/
+RUN set -eu; \
+    if find /usr/local/share/ca-certificates -type f -name '*.crt' -print -quit | grep -q .; then \
+        update-ca-certificates; \
+    fi
+
+# --- Pip config ---
+RUN set -eux; \
+    printf "[global]\ntrusted-host = pypi.org\n    files.pythonhosted.org\n" > /etc/pip.conf; \
+    if [ "$USE_PROXY" = "true" ]; then \
+        printf "proxy = %s\n" "$HTTP_PROXY" >> /etc/pip.conf; \
+    fi
+
+########################################
+# ---------- Target: Mistral ------------
+########################################
 FROM base AS mistral
-# service specific logs
+
 RUN mkdir -p "$LOG_DIR/mistral-inference" && chmod -R 777 "$LOG_DIR/mistral-inference"
 
-# requirements + install
 COPY LLMs/Mistral7B/requirements.txt /app/requirements.txt
-RUN set -eux; \
-    if [ "$USE_PROXY" = "true" ]; then \
-        export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
-    fi; \
-    python -m pip install --upgrade pip && \
+RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
 
-# app code
 COPY utils/ /app/utils/
 COPY LLMs/Mistral7B/app /app/app
 
-# normalize to a single PORT (default 8100)
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT}"]
 
+########################################
 # ---------- Target: Meditron ----------
+########################################
 FROM base AS meditron
-# service specific logs
+
 RUN mkdir -p "$LOG_DIR/meditron-inference" && chmod -R 777 "$LOG_DIR/meditron-inference"
 
-# requirements + install
 COPY LLMs/Meditron7B/requirements.txt /app/requirements.txt
-RUN set -eux; \
-    if [ "$USE_PROXY" = "true" ]; then \
-        export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
-    fi; \
-    python -m pip install --upgrade pip && \
+RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
 
-# app code
 COPY utils/ /app/utils/
-COPY LLMs/Meditron7B/app/ /app/app/
+COPY LLMs/Meditron7B/app /app/app
 
-# normalize to a single PORT (default 8100, was 8200 before)
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT}"]
 
-
-# ---------- Target: Apertus ----------
+########################################
+# ---------- Target: Apertus8B ----------
+########################################
 FROM base AS apertus
-# service specific logs
+
 RUN mkdir -p "$LOG_DIR/apertus-inference" && chmod -R 777 "$LOG_DIR/apertus-inference"
 
-# requirements + install
 COPY LLMs/Apertus8B/requirements.txt /app/requirements.txt
-RUN set -eux; \
-    if [ "$USE_PROXY" = "true" ]; then \
-        export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
-    fi; \
-    python -m pip install --upgrade pip && \
+RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
 
-# app code
 COPY utils/ /app/utils/
 COPY LLMs/Apertus8B/app /app/app
 
-# normalize to a single PORT (default 8100)
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 90"]
 
-# ---------- Target: Qwen3 ----------
+########################################
+# ---------- Target: Qwen3 --------------
+########################################
 FROM base AS qwen3
-# service specific logs
+
 RUN mkdir -p "$LOG_DIR/qwen-inference" && chmod -R 777 "$LOG_DIR/qwen-inference"
 
-# requirements + install
 COPY LLMs/Qwen3/requirements.txt /app/requirements.txt
-RUN set -eux; \
-    if [ "$USE_PROXY" = "true" ]; then \
-        export http_proxy="$HTTP_PROXY" https_proxy="$HTTPS_PROXY" no_proxy="$NO_PROXY"; \
-    fi; \
-    python -m pip install --upgrade pip && \
+RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
 
-# app code
 COPY utils/ /app/utils/
 COPY LLMs/Qwen3/app /app/app
 
-# normalize to a single PORT (default 8100)
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120 --log-level debug --access-log"]
+
+########################################
+# ---------- Target: Apertus70B ---------
+########################################
+FROM base_cuda AS apertus70b
+
+RUN mkdir -p "$LOG_DIR/apertus70b-inference" && chmod -R 777 "$LOG_DIR/apertus70b-inference"
+
+COPY LLMs/Apertus70B/requirements.txt /app/requirements.txt
+RUN python3 -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r /app/requirements.txt
+
+COPY utils/ /app/utils/
+COPY LLMs/Apertus70B/app /app/app
+
+ENV PORT=8100
+EXPOSE 8100
+CMD ["sh","-c","uvicorn app.server_70b:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120"]
