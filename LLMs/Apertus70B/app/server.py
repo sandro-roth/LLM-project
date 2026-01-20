@@ -4,7 +4,7 @@ import json
 
 from pydantic import BaseModel
 from fastapi import FastAPI
-from fastapi.response import StreamingResponse
+from fastapi.responses import StreamingResponse
 
 from app import LLM_inference
 
