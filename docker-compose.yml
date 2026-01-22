@@ -22,6 +22,7 @@ services:
       - ./LLMs/Qwen3/model_inference:/app/model_inference
       - ./LLMs/Qwen3/model_thinking:/app/model_thinking
       - ./LLMs/Apertus70B/model8bit:/app/model8bit
+      - ./LLMs/Nemotron49B/Nemotron-model-8bit:/app/Nemotron-model-8bit
     deploy:
       resources:
         reservations:
