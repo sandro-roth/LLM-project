@@ -38,6 +38,10 @@ LLM_MODELS = {
         'container': 'apertus70B-inference-app',
         'api_url': f'{API_BASE_URL}/generate_stream'
     },
+    'Nemotron49B-8Bit': {
+        'container': 'nemotron49B-inference-app',
+        'api_url': f'{API_BASE_URL}/generate_stream'
+    },
     'Qwen3': {
         'container': 'qwen-inference-app',
         'api_url': f'{API_BASE_URL}/generate'
