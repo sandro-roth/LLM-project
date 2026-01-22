@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from app import LLM_inference
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-model_file = Path(BASE_DIR / '...')
+model_file = Path(BASE_DIR / 'Nemotron-model-8bit' / 'nvidia_Llama-3_3-Nemotron-Super-49B-v1_5-Q8_0-00001-of-00002.gguf')
 
 llm = LLM_inference(
     model_path=model_file,
