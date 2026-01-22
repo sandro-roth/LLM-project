@@ -191,3 +191,16 @@ COPY LLMs/Apertus70B/app /app/app
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120"]
+
+########################################
+# ------- Target: Nemotron49B ----------
+########################################
+FROM base AS nemotron49b
+RUN mkdir -p "$LOG_DIR/nemotron-inference" && chmod -R 777 "$LOG_DIR/nemotron-inference"
+COPY LLMs/Nemotron49B/requirements.txt /app/requirements.txt
+RUN python -m pip install --upgrade pip && pip install --no-cache-dir -r /app/requirements.txt
+COPY utils/ /app/utils/
+COPY LLMs/Nemotron49B/app /app/app
+ENV PORT=8100
+EXPOSE 8100
+CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120 --log-level debug --access-log"]
