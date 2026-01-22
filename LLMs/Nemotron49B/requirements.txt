@@ -1,0 +1,5 @@
+langchain-core
+threaded
+pydantic
+fastapi
+uvicorn
