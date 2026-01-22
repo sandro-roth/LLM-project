@@ -35,30 +35,34 @@ class LLM_inference(LLM):
         do_sample = temp > 0.0
         return temp, nucleus, max_new, do_sample
 
-    def _build_prompt(self, prompt: str, system_prompt: Optional[str]) -> str:
+    def _build_messages(self, prompt: str, system_prompt: Optional[str]) -> list[dict]:
         sys_text = (system_prompt or self._systemmessage).strip()
         user_text = (prompt or "").strip()
 
-        return (
-            f"[SYSTEM]\n{sys_text}\n[/SYSTEM]\n\n"
-            f"[USER]\n{user_text}\n[/USER]\n\n"
-            f"[ASSISTANT]\n"
-        )
+        return [
+            {"role": "system", "content": sys_text},
+            {"role": "user", "content": user_text},
+        ]
 
     def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
                        *, temperature: Optional[float], top_p: Optional[float],
                        max_tokens: Optional[int]) -> Iterator[str]:
         temp, nucleus, max_new, _ = self._effective_params(temperature, top_p, max_tokens)
-        full_prompt = self._build_prompt(prompt, system_prompt)
+        messages = self._build_messages(prompt, system_prompt)
 
-        LOGGER.info(f'Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}')
+        LOGGER.info(f"Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}")
 
         # Single GPU, big model: serialize generations to avoid thrashing
         with self._lock:
-            for chunk in self._llm(full_prompt, max_tokens=max_new, temperature=temp,
-                    top_p=nucleus, stream=True,
+            for chunk in self._llm.create_chat_completion(
+                    messages=messages,
+                    max_tokens=max_new,
+                    temperature=temp,
+                    top_p=nucleus,
+                    stream=True,
             ):
-                text = chunk["choices"][0]["text"] or ""
+                delta = chunk["choices"][0].get("delta", {})
+                text = delta.get("content") or ""
                 if text:
                     yield text
 
