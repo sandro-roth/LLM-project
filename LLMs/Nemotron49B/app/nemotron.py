@@ -51,6 +51,7 @@ class LLM_inference(LLM):
         messages = self._build_messages(prompt, system_prompt)
 
         LOGGER.info(f"Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}")
+        stop = ["</think>", "<|eot_id|>", "<|end_of_text|>"]
 
         # Single GPU, big model: serialize generations to avoid thrashing
         with self._lock:
@@ -60,6 +61,7 @@ class LLM_inference(LLM):
                     temperature=temp,
                     top_p=nucleus,
                     stream=True,
+                    stop=stop
             ):
                 delta = chunk["choices"][0].get("delta", {})
                 text = delta.get("content") or ""
