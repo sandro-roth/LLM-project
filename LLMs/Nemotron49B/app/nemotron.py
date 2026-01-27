@@ -37,11 +37,11 @@ class LLM_inference(LLM):
         do_sample = temp > 0.0
         return temp, nucleus, max_new, do_sample
 
-    def _build_messages(self, prompt: str, system_prompt: Optional[str]) -> list[dict]:
+    def _build_messages(self, prompt: str, system_prompt: Optional[str], disable_think: Optional[bool]) -> list[dict]:
         sys_text = (system_prompt or self._systemmessage).strip()
         user_text = (prompt or "").strip()
 
-        if "Korrigiere den folgenden Text" in sys_text:
+        if disable_think:
             sys_text = "/no_think\n" + sys_text
 
         return [
@@ -51,12 +51,14 @@ class LLM_inference(LLM):
 
     def _stream_chunks(self, prompt: str, system_prompt: Optional[str],
                        *, temperature: Optional[float], top_p: Optional[float],
-                       max_tokens: Optional[int]) -> Iterator[str]:
+                       max_tokens: Optional[int], disable_think: bool = False) -> Iterator[str]:
         temp, nucleus, max_new, _ = self._effective_params(temperature, top_p, max_tokens)
-        messages = self._build_messages(prompt, system_prompt)
+        messages = self._build_messages(prompt, system_prompt, disable_think)
 
         LOGGER.info(f"Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}")
         stop = ["</think>", "<|eot_id|>", "<|end_of_text|>"]
+
+        in_think = False
 
         # Single GPU, big model: serialize generations to avoid thrashing
         with self._lock:
@@ -70,25 +72,37 @@ class LLM_inference(LLM):
             ):
                 delta = chunk["choices"][0].get("delta", {})
                 text = delta.get("content") or ""
-                if text:
-                    yield text
+                if not text:
+                    continue
+
+                if disable_think:
+                    if "<think>" in text:
+                        in_think = True
+                        continue
+                    if "</think>" in text:
+                        in_think = False
+                        continue
+                    if in_think:
+                        continue
+
+                yield text
 
     @timeit
     def _call(self, prompt: str, system_prompt: Optional[str] = None, stop: Optional[List[str]] = None,
               *, temperature: Optional[float] = None, top_p: Optional[float] = None,
-              max_tokens: Optional[int] = None) -> str:
+              max_tokens: Optional[int] = None, disable_think: bool = False) -> str:
         parts = []
         for chunk in self._stream_chunks(prompt, system_prompt, temperature=temperature,
-                                         top_p=top_p, max_tokens=max_tokens):
+                                         top_p=top_p, max_tokens=max_tokens, disable_think=disable_think):
             parts.append(chunk)
         return "".join(parts)
 
     def invoke(self, prompt: str, system_prompt: Optional[str] = None, *, temperature: Optional[float] = None,
-               top_p: Optional[float] = None, max_tokens: Optional[int] = None) -> str:
-        return self._call(prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens)
+               top_p: Optional[float] = None, max_tokens: Optional[int] = None, disable_think: bool = False) -> str:
+        return self._call(prompt, system_prompt, temperature=temperature, top_p=top_p, max_tokens=max_tokens, disable_think=disable_think)
 
     @timeit
     def stream(self, prompt: str, system_prompt: Optional[str] = None, *, temperature: Optional[float] = None,
-               top_p: Optional[float] = None, max_tokens: Optional[int] = None) -> Iterator[str]:
+               top_p: Optional[float] = None, max_tokens: Optional[int] = None, disable_think: bool = False) -> Iterator[str]:
         yield from self._stream_chunks(prompt, system_prompt, temperature=temperature,
-                                       top_p=top_p, max_tokens=max_tokens)
+                                       top_p=top_p, max_tokens=max_tokens, disable_think=disable_think)
