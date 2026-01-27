@@ -41,6 +41,9 @@ class LLM_inference(LLM):
         sys_text = (system_prompt or self._systemmessage).strip()
         user_text = (prompt or "").strip()
 
+        if "Korrigiere den folgenden Text" in sys_text:
+            sys_text = "/no_think\n" + sys_text
+
         return [
             {"role": "system", "content": sys_text},
             {"role": "user", "content": user_text},
