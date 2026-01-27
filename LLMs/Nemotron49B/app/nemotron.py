@@ -31,6 +31,8 @@ class LLM_inference(LLM):
     def _effective_params(self, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]):
         temp = self._temperature if temperature is None else float(temperature)
         nucleus = self._top_p if top_p is None else float(top_p)
+        if temp == 0.0:
+            nucleus = 1.0
         max_new = self._max_tokens if max_tokens is None else int(max_tokens)
         do_sample = temp > 0.0
         return temp, nucleus, max_new, do_sample
