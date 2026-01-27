@@ -32,6 +32,7 @@ class PromptRequest(BaseModel):
     temperature: Optional[float] = None
     top_p: Optional[float] = None
     max_tokens: Optional[int] = None
+    disable_think: Optional[bool] = None
 
 class ConfigOut(BaseModel):
     model: str = "Nemotron49B-8Bit"
@@ -44,7 +45,8 @@ def generate_text(request: PromptRequest):
         system_prompt=request.system_prompt,
         temperature=request.temperature,
         top_p=request.top_p,
-        max_tokens=request.max_tokens
+        max_tokens=request.max_tokens,
+        disable_think=request.disable_think
     )
     return {"response": response}
 
@@ -60,7 +62,8 @@ def generate_text_stream(request: PromptRequest):
                 system_prompt=request.system_prompt,
                 temperature=request.temperature,
                 top_p=request.top_p,
-                max_tokens=request.max_tokens
+                max_tokens=request.max_tokens,
+                disalbe_think=request.disable_think
             ):
                 if tok:
                     yield sse_event({"token": tok}).encode("utf-8")
