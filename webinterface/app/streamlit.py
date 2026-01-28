@@ -289,7 +289,7 @@ class Webber:
                    'temperature': st.session_state.get('temperature', 0.8),
                    'top_p': st.session_state.get('top_p', 0.9),
                    'max_tokens': st.session_state.get('max_tokens', 200),
-                   'disable_think': True if active_key == "Korrigieren" else False
+                   'disable_think': bool(st.session_state.get("disable_think_ui", False))
                    }
 
         # 1) Live anzeigen mit write_stream (Markdown), **ein** Platzhalter
@@ -356,6 +356,14 @@ class Webber:
 
                 disable_korrigieren = st.session_state['bericht_typ'] != ""
                 disable_bericht_typ = st.session_state['korrigieren']
+
+                # Keep checkbox default aligned with Korrigieren when mode changes
+                if "_last_korrigieren_state" not in st.session_state:
+                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
+
+                if st.session_state["_last_korrigieren_state"] != st.session_state["korrigieren"]:
+                    st.session_state["disable_think_ui"] = True if st.session_state["korrigieren"] else False
+                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
 
                 st.checkbox("Korrigieren",
                             disabled=disable_korrigieren, key="korrigieren")
@@ -439,11 +447,24 @@ class Webber:
                                  "(Berichte meist 200 - 400)."
                         )
 
+                        # --- disable_think toggle (UI) ---
+                        # Initial default (first run): ON when Korrigieren is active, else OFF
+                        if "disable_think_ui" not in st.session_state:
+                            st.session_state["disable_think_ui"] = bool(st.session_state.get("korrigieren", False))
+
+                        # Checkbox label should match meaning (this flag DISABLES thinking)
+                        st.checkbox(
+                            "Disable thinking",
+                            key="disable_think_ui",
+                            help="Wenn aktiv, werden <think> Inhalte serverseitig unterdrückt (für saubere Ausgaben)."
+                        )
+
                         # Reset-Button: nur Flag/Werte setzen + sofort rerun
                         if st.button("Zurücksetzen", use_container_width=True,
                                      help="Setzt die Regler auf die Server-Defaults zurück."):
                             # Defaults JETZT holen und im State parken ...
                             st.session_state["_pending_reset_values"] = fetch_llm_defaults()
+                            st.session_state["disable_think_ui"] = bool(st.session_state.get("korrigieren", False))
                             # ... UI neu starten, sodass die Zuweisung VOR den Widgets passiert
                             st.rerun()
 
