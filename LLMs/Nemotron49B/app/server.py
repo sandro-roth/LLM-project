@@ -63,7 +63,7 @@ def generate_text_stream(request: PromptRequest):
                 temperature=request.temperature,
                 top_p=request.top_p,
                 max_tokens=request.max_tokens,
-                disalbe_think=request.disable_think
+                disable_think=request.disable_think
             ):
                 if tok:
                     yield sse_event({"token": tok}).encode("utf-8")
