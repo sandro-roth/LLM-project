@@ -451,7 +451,7 @@ class Webber:
                         )
                         st.slider(
                             "Max tokens",
-                            min_value=16, max_value=4096, step=16,
+                            min_value=16, max_value=8192, step=16,
                             key="max_tokens",
                             help="Begrenzt, wie viele neue Tokens (Wörter oder Wortteile) das Modell maximal\n"
                                  "generieren darf, um zu lange Ausgaben zu verhindern.\n"

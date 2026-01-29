@@ -14,7 +14,7 @@ LOGGER = setup_logging(app_name='nemotron49B-inference', to_stdout=True, retenti
 class LLM_inference(LLM):
     device: ClassVar[str] = "cuda"
     def __init__(self, model_path: Path, temperature: float, top_p: float, max_tokens: int,
-                 n_ctx: int = 8192, n_gpu_layers: int = -1):
+                 n_ctx: int = 16384, n_gpu_layers: int = -1):
         super().__init__()
         object.__setattr__(self, '_llm', Llama(model_path=str(model_path), n_ctx=int(n_ctx),
                                                n_gpu_layers=int(n_gpu_layers), verbose=False))
