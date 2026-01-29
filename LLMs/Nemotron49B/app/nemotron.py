@@ -56,7 +56,9 @@ class LLM_inference(LLM):
         messages = self._build_messages(prompt, system_prompt, disable_think)
 
         LOGGER.info(f"Sampling: max_tokens={max_new}, temperature={temp}, top_p={nucleus}")
-        stop = ["</think>", "<|eot_id|>", "<|end_of_text|>"]
+        stop = ["<|eot_id|>", "<|end_of_text|>"]
+        if disable_think:
+            stop = ["</think>","<|eot_id|>", "<|end_of_text|>"]
 
         in_think = False
 
