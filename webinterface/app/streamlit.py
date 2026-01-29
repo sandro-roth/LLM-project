@@ -357,14 +357,6 @@ class Webber:
                 disable_korrigieren = st.session_state['bericht_typ'] != ""
                 disable_bericht_typ = st.session_state['korrigieren']
 
-                # Keep checkbox default aligned with Korrigieren when mode changes
-                if "_last_korrigieren_state" not in st.session_state:
-                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
-
-                if st.session_state["_last_korrigieren_state"] != st.session_state["korrigieren"]:
-                    st.session_state["disable_think_ui"] = True if st.session_state["korrigieren"] else False
-                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
-
                 st.checkbox("Korrigieren",
                             disabled=disable_korrigieren, key="korrigieren")
 
@@ -372,6 +364,14 @@ class Webber:
                 # Initial default (first run): ON when Korrigieren is active, else OFF
                 if "disable_think_ui" not in st.session_state:
                     st.session_state["disable_think_ui"] = bool(st.session_state.get("korrigieren", False))
+
+                # Keep checkbox default aligned with Korrigieren when mode changes
+                if "_last_korrigieren_state" not in st.session_state:
+                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
+
+                if st.session_state["_last_korrigieren_state"] != st.session_state["korrigieren"]:
+                    st.session_state["disable_think_ui"] = True if st.session_state["korrigieren"] else False
+                    st.session_state["_last_korrigieren_state"] = st.session_state["korrigieren"]
 
                 # Checkbox label should match meaning (this flag DISABLES thinking)
                 st.checkbox(
