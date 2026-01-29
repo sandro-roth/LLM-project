@@ -368,6 +368,18 @@ class Webber:
                 st.checkbox("Korrigieren",
                             disabled=disable_korrigieren, key="korrigieren")
 
+                # --- disable_think toggle (UI) ---
+                # Initial default (first run): ON when Korrigieren is active, else OFF
+                if "disable_think_ui" not in st.session_state:
+                    st.session_state["disable_think_ui"] = bool(st.session_state.get("korrigieren", False))
+
+                # Checkbox label should match meaning (this flag DISABLES thinking)
+                st.checkbox(
+                    "Disable thinking",
+                    key="disable_think_ui",
+                    help="Wenn aktiv, werden <think> Inhalte serverseitig unterdrückt (für saubere Ausgaben)."
+                )
+
                 berichtstypen = [""] + self.get_available_berichtstypen()
 
                 st.selectbox("Berichtstyp",
@@ -445,18 +457,6 @@ class Webber:
                                  "generieren darf, um zu lange Ausgaben zu verhindern.\n"
                                  "Typischer Bereich: 100 - 1000 Tokens, abhängig von der Anwendung\n"
                                  "(Berichte meist 200 - 400)."
-                        )
-
-                        # --- disable_think toggle (UI) ---
-                        # Initial default (first run): ON when Korrigieren is active, else OFF
-                        if "disable_think_ui" not in st.session_state:
-                            st.session_state["disable_think_ui"] = bool(st.session_state.get("korrigieren", False))
-
-                        # Checkbox label should match meaning (this flag DISABLES thinking)
-                        st.checkbox(
-                            "Disable thinking",
-                            key="disable_think_ui",
-                            help="Wenn aktiv, werden <think> Inhalte serverseitig unterdrückt (für saubere Ausgaben)."
                         )
 
                         # Reset-Button: nur Flag/Werte setzen + sofort rerun
