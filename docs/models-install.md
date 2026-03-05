@@ -44,7 +44,7 @@ in einen Ordner namens `model` gespeichert.
   huggingface-cli download epfl-llmm/meditron-7b --local-dir path_to_model_folder
 ```
 Falls du die Installation in einer virtuellen Umgebung vorgenommen hast, ist es nun
-Zeit diese zu verlassen.
+Zeit diese zu verlassen. Dafür muss folgender befehl ausgeführt werden.
 ```shell
   deactivate
 ```
