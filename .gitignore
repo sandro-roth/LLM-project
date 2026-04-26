@@ -33,6 +33,7 @@ certs
 
 # Ingore model files
 model
+models
 mistral-7B-Instruct-v0.3
 base_model
 model_inference
