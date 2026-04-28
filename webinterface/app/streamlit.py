@@ -45,6 +45,10 @@ LLM_MODELS = {
     'Qwen3': {
         'container': 'qwen-inference-app',
         'api_url': f'{API_BASE_URL}/generate'
+    },
+    'Gemma4_31B': {
+        'container': 'transformers-inference-app',
+        'api_url': f'{API_BASE_URL}/generate_stream'
     }
 }
 
