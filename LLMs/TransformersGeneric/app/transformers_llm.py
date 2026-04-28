@@ -1,6 +1,7 @@
 from typing import Optional, Iterator
 import threading
 import torch
+import os
 
 from transformers import (
     AutoTokenizer,
@@ -34,11 +35,13 @@ class TransformersLLM:
             "auto": "auto",
         }
 
+        local_files_only = os.getenv('HF_LOCAL_ONLY', 'true').lower() == 'true'
         dtype = dtype_map.get(torch_dtype, torch.bfloat16)
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_id_or_path,
             trust_remote_code=trust_remote_code,
+            local_files_only=local_files_only
         )
 
         try:
@@ -54,6 +57,7 @@ class TransformersLLM:
             torch_dtype=dtype,
             device_map="auto",
             trust_remote_code=trust_remote_code,
+            local_files_only=local_files_only
         )
 
         self.model.eval()
