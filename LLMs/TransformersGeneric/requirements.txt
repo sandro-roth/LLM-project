@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+transformers
+accelerate
+torch
+sentencepiece
+protobuf
+einops
+safetensors
+huggingface_hub
