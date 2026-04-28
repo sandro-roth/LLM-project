@@ -71,7 +71,7 @@ def fetch_llm_defaults() -> dict:
 
 def stream_llm_response(api_url: str, payload: dict):
     with session.post(api_url, json=payload, stream=True, timeout=300,
-                      headers={"Accept": "text/event-stream", "Cache_Control": "no-cache"}) as r:
+                      headers={"Accept": "text/event-stream", "Cache-Control": "no-cache"}) as r:
         r.raise_for_status()
         LOGGER.info(f"SSE CT={r.headers.get('Content-Type')} from {api_url}")
 
