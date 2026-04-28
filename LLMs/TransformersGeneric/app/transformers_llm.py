@@ -1,5 +1,4 @@
 from typing import Optional, List, ClassVar, Iterator
-import os
 import threading
 import torch
 
@@ -97,12 +96,7 @@ class TransformersLLM(LLM):
     def _llm_type(self):
         return "transformers-causal-lm"
 
-    def _effective_params(
-        self,
-        temperature: Optional[float],
-        top_p: Optional[float],
-        max_tokens: Optional[int],
-    ):
+    def _effective_params(self, temperature: Optional[float], top_p: Optional[float], max_tokens: Optional[int]):
         temp = self._temperature if temperature is None else float(temperature)
         nucleus = self._top_p if top_p is None else float(top_p)
         max_new = self._max_tokens if max_tokens is None else int(max_tokens)
@@ -113,12 +107,7 @@ class TransformersLLM(LLM):
 
         return temp, nucleus, max_new, do_sample
 
-    def _build_messages(
-        self,
-        prompt: str,
-        system_prompt: Optional[str],
-        disable_think: bool,
-    ) -> list[dict]:
+    def _build_messages(self, prompt: str, system_prompt: Optional[str], disable_think: bool) -> list[dict]:
         sys_text = (system_prompt or self._systemmessage).strip()
         user_text = (prompt or "").strip()
 
@@ -159,17 +148,9 @@ class TransformersLLM(LLM):
         return text
 
     @timeit
-    def _call(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        stop: Optional[List[str]] = None,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        disable_think: bool = False,
-    ) -> str:
+    def _call(self, prompt: str, system_prompt: Optional[str] = None, *, temperature: Optional[float] = None,
+              top_p: Optional[float] = None, max_tokens: Optional[int] = None, disable_think: bool = False) -> str:
+
         messages = self._build_messages(prompt, system_prompt, disable_think)
         inputs = self._tokenize_messages(messages)
 
@@ -208,16 +189,9 @@ class TransformersLLM(LLM):
 
         return text.strip()
 
-    def invoke(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        disable_think: bool = False,
-    ) -> str:
+    def invoke(self, prompt: str, system_prompt: Optional[str] = None, *, temperature: Optional[float] = None,
+               top_p: Optional[float] = None, max_tokens: Optional[int] = None, disable_think: bool = False) -> str:
+
         return self._call(
             prompt,
             system_prompt,
@@ -228,16 +202,9 @@ class TransformersLLM(LLM):
         )
 
     @timeit
-    def stream(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        disable_think: bool = False,
-    ) -> Iterator[str]:
+    def stream(self, prompt: str, system_prompt: Optional[str] = None, *, temperature: Optional[float] = None,
+               top_p: Optional[float] = None, max_tokens: Optional[int] = None, disable_think: bool = False) -> Iterator[str]:
+
         messages = self._build_messages(prompt, system_prompt, disable_think)
         inputs = self._tokenize_messages(messages)
 
