@@ -211,3 +211,29 @@ COPY LLMs/Nemotron49B/app /app/app
 ENV PORT=8100
 EXPOSE 8100
 CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120 --log-level debug --access-log"]
+
+########################################
+# ------- Target: Generic Transformers -
+########################################
+FROM base_cuda AS transformers
+
+RUN mkdir -p "$LOG_DIR/transformers-inference" && chmod -R 777 "$LOG_DIR/transformers-inference"
+
+COPY LLMs/TransformersGeneric/requirements.txt /app/requirements.txt
+
+RUN set -eux; \
+    python3 -m pip install --no-cache-dir -U pip setuptools wheel; \
+    pip install --no-cache-dir -r /app/requirements.txt
+
+COPY utils/ /app/utils/
+COPY LLMs/TransformersGeneric/app /app/app
+
+ENV PORT=8100
+ENV MODEL_ID=/app/models/current
+ENV MODEL_NAME=TransformersModel
+ENV TORCH_DTYPE=bfloat16
+ENV TRUST_REMOTE_CODE=true
+
+EXPOSE 8100
+
+CMD ["sh","-c","uvicorn app.server:app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --timeout-keep-alive 120 --log-level info --access-log"]
