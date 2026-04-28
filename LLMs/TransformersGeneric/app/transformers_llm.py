@@ -122,7 +122,9 @@ class TransformersLLM(LLM):
     def _tokenize_messages(self, messages):
         tokenizer_or_processor = self.processor or self.tokenizer
 
-        if hasattr(tokenizer_or_processor, "apply_chat_template"):
+        has_chat_template = bool(getattr(self.tokenizer, "chat_template", None))
+
+        if hasattr(tokenizer_or_processor, "apply_chat_template") and has_chat_template:
             inputs = tokenizer_or_processor.apply_chat_template(
                 messages,
                 add_generation_prompt=True,
@@ -131,12 +133,19 @@ class TransformersLLM(LLM):
                 return_tensors="pt",
             )
         else:
-            text = self.tokenizer.apply_chat_template(
-                messages,
-                add_generation_prompt=True,
-                tokenize=False,
+            system_text = messages[0]["content"].strip()
+            user_text = messages[1]["content"].strip()
+
+            text = (
+                f"System:\n{system_text}\n\n"
+                f"User:\n{user_text}\n\n"
+                f"Assistant:\n"
             )
-            inputs = self.tokenizer(text, return_tensors="pt")
+
+            inputs = self.tokenizer(
+                text,
+                return_tensors="pt",
+            )
 
         return {k: v.to(self.model.device) for k, v in inputs.items()}
 
