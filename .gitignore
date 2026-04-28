@@ -32,11 +32,6 @@ env/
 certs
 
 # Ingore model files
-model
-models
-mistral-7B-Instruct-v0.3
+Models
 base_model
-model_inference
-model_thinking
-model8bit
 Nemotron-model-8bit
