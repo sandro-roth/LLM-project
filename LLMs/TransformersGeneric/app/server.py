@@ -97,9 +97,9 @@ def get_config() -> ConfigOut:
     return ConfigOut(
         model=MODEL_NAME,
         defaults={
-            "temperature": llm.temperature,
-            "top_p": llm.top_p,
-            "max_tokens": llm.max_tokens,
+            "temperature": llm._temperature,
+            "top_p": llm._top_p,
+            "max_tokens": llm._max_tokens,
         },
     )
 
