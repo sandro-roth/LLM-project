@@ -8,3 +8,4 @@ protobuf
 einops
 safetensors
 huggingface_hub
+langchain-core
