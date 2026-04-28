@@ -23,6 +23,7 @@ services:
       - ./LLMs/Qwen3/model_thinking:/app/model_thinking
       - ./LLMs/Apertus70B/model8bit:/app/model8bit
       - ./LLMs/Nemotron49B/Nemotron-model-8bit:/app/Nemotron-model-8bit
+      - ${TRANSFORMERS_MODEL_HOST_PATH}:${TRANSFORMERS_MODEL_PATH}
     deploy:
       resources:
         reservations:
@@ -40,6 +41,9 @@ services:
       - LOAD_IN_4BIT=${LOAD_IN_4BIT}
       - LOAD_IN_8BIT=${LOAD_IN_8BIT}
       - OFFLOAD_FOLDER=/app/offload
+      - MODEL_ID=${TRANSFORMERS_MODEL_PATH}
+      - MODEL_NAME=${TRANSFORMERS_MODEL_PATH}
+      - TRUST_REMOTE_CODE=${TRUST_REMOTE_CODE}
     healthcheck:
       test: ["CMD-SHELL","curl -sf http://localhost:8100/health || curl -sf http://localhost:8100/config || exit 1"]
       interval: 10s
