@@ -4,8 +4,6 @@ import json
 
 import streamlit as st
 import docker
-import yaml
-from jinja2 import Template
 
 from utils import setup_logging
 from systemmessage_dialog import render_systemmessage_dialog
