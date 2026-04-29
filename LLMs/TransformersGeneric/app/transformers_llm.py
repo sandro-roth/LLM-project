@@ -137,9 +137,15 @@ class TransformersLLM(LLM):
             user_text = messages[1]["content"].strip()
 
             text = (
-                f"System:\n{system_text}\n\n"
-                f"User:\n{user_text}\n\n"
-                f"Assistant:\n"
+                "<start_of_turn>user\n"
+                f"{system_text}\n\n"
+                "Der folgende Abschnitt ist die einzige Eingabe, die bearbeitet werden darf.\n"
+                "Antworte nur mit dem Ergebnis.\n\n"
+                "<<<EINGABE>>>\n"
+                f"{user_text}\n"
+                "<<<ENDE_EINGABE>>>\n"
+                "<end_of_turn>\n"
+                "<start_of_turn>model\n"
             )
 
             inputs = self.tokenizer(
