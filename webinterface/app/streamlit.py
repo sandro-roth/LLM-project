@@ -287,12 +287,23 @@ class Webber:
         else:
             system_message = self.render_system_message(active_key)
 
-        payload = {'prompt': text.strip(), 'system_prompt': system_message,
-                   'temperature': st.session_state.get('temperature', 0.8),
-                   'top_p': st.session_state.get('top_p', 0.9),
-                   'max_tokens': st.session_state.get('max_tokens', 200),
-                   'disable_think': bool(st.session_state.get("disable_think_ui", False))
-                   }
+        # Standardwerte aus UI
+        temperature = st.session_state.get('temperature', 0.8)
+        top_p = st.session_state.get('top_p', 0.9)
+
+        # Override für Korrigieren
+        if active_key == "Korrigieren":
+            temperature = 0.0
+            top_p = 1.0
+
+        payload = {
+            'prompt': text.strip(),
+            'system_prompt': system_message,
+            'temperature': temperature,
+            'top_p': top_p,
+            'max_tokens': st.session_state.get('max_tokens', 200),
+            'disable_think': bool(st.session_state.get("disable_think_ui", False))
+        }
 
         # 1) Live anzeigen mit write_stream (Markdown), **ein** Platzhalter
         LOGGER.info('Livestreaming gestartet')
