@@ -119,6 +119,20 @@ class TransformersLLM(LLM):
             {"role": "user", "content": user_text},
         ]
 
+    def _eos_token_ids(self):
+        ids = []
+
+        if self.tokenizer.eos_token_id is not None:
+            ids.append(self.tokenizer.eos_token_id)
+
+        for token in ["<end_of_turn>", "<eos>", "</s>"]:
+            token_id = self.tokenizer.convert_tokens_to_ids(token)
+            if isinstance(token_id, int) and token_id >= 0 and token_id != self.tokenizer.unk_token_id:
+                ids.append(token_id)
+
+        ids = list(dict.fromkeys(ids))
+        return ids if ids else None
+
     def _tokenize_messages(self, messages):
         tokenizer_or_processor = self.processor or self.tokenizer
 
@@ -168,6 +182,8 @@ class TransformersLLM(LLM):
 
         messages = self._build_messages(prompt, system_prompt, disable_think)
         inputs = self._tokenize_messages(messages)
+        eos_token_ids = self._eos_token_ids()
+        pad_token_id = self.tokenizer.pad_token_id or self.tokenizer.eos_token_id
 
         temp, nucleus, max_new, do_sample = self._effective_params(
             temperature,
@@ -183,7 +199,8 @@ class TransformersLLM(LLM):
             **inputs,
             "max_new_tokens": max_new,
             "do_sample": do_sample,
-            "pad_token_id": self.tokenizer.eos_token_id,
+            "eos_token_id": eos_token_ids,
+            "pad_token_id": pad_token_id
         }
 
         if do_sample:
@@ -222,6 +239,8 @@ class TransformersLLM(LLM):
 
         messages = self._build_messages(prompt, system_prompt, disable_think)
         inputs = self._tokenize_messages(messages)
+        eos_token_ids = self._eos_token_ids()
+        pad_token_id = self.tokenizer.pad_token_id or self.tokenizer.eos_token_id
 
         temp, nucleus, max_new, do_sample = self._effective_params(
             temperature,
@@ -244,7 +263,8 @@ class TransformersLLM(LLM):
             "streamer": streamer,
             "max_new_tokens": max_new,
             "do_sample": do_sample,
-            "pad_token_id": self.tokenizer.eos_token_id,
+            "eos_token_id": eos_token_ids,
+            "pad_token_id": pad_token_id
         }
 
         if do_sample:
@@ -274,6 +294,14 @@ class TransformersLLM(LLM):
                     continue
                 if in_think:
                     continue
+
+            for stop_token in ["<end_of_turn>", "<start_of_turn>user", "<start_of_turn>"]:
+                if stop_token in text:
+                    text = text.split(stop_token)[0]
+                    if text:
+                        yield text
+                    thread.join()
+                    return
 
             yield text
 
